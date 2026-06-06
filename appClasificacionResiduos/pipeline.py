@@ -2,10 +2,6 @@ import cv2
 import numpy as np
 import math
 
-
-
-
-+
 import os
 from Libreria.thepibbles.Gramatica.lexer import Tokenizador
 from Libreria.thepibbles.Gramatica.parser import Parser
