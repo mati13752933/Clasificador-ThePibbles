@@ -2,6 +2,16 @@ import cv2
 import numpy as np
 import math
 
+
+
+
++
+import os
+from Libreria.thepibbles.Gramatica.lexer import Tokenizador
+from Libreria.thepibbles.Gramatica.parser import Parser
+from Libreria.thepibbles.IA.promptBuilder import PromptBuilder
+from Libreria.thepibbles.IA.ia import Ia
+
 #Puse comentarios para que no sea todo un despute
 
 def hallarArea(contorno):#Lit te halla el area de un poligono como en alg1(geo analitica)
@@ -66,7 +76,7 @@ def hallarPromedioTono(recorte):#Entre los tonos del recorte(solo el objeto) te 
             total+=recorte[i][j][0]
     return int(total/(filas*cols))
 
-def analizar_imagen(imagen):#el main xd
+def analizarImagen(imagen):#el main xd
     img = cv2.imread(imagen)
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     mascara = cv2.inRange(hsv, np.array([0, 30, 30]), np.array([180, 255, 255]))
@@ -97,3 +107,16 @@ def analizar_imagen(imagen):#el main xd
         "circularidad":circularidad, 
         "area":int(area)             
     }
+
+def maincito(imagen):
+    datosImagen=analizarImagen(imagen)
+    promptcito = f'Clasificar:"Residuo" (tipo="texto", contexto="Métricas físicas de la muestra: {datosImagen}", restricciones="Responde SOLO con la clasificacion, usando las métricas del contexto, clasifica el objeto ÚNICAMENTE en una de estas categorías: [Aprovechable, Reciclable, No Aprovehcable, Infeccioso]. Debes responder con 1 o 2 palabras")'
+    tokenizador=Tokenizador()
+    tokens=tokenizador.tokenizar(promptcito)
+    parser=Parser(tokens)
+    parseado=parser.parsear()
+    constructorcito=PromptBuilder()
+    promptFinal=constructorcito.construir(parseado)
+    ia=Ia()
+    res=ia.generar(promptFinal)
+    return res
