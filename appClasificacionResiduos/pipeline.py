@@ -106,7 +106,7 @@ def analizarImagen(imagen):#el main xd
 
 def maincito(imagen):
     datosImagen=analizarImagen(imagen)
-    promptcito = f'Clasificar:"Residuo" (tipo="texto", contexto="Métricas físicas de la muestra: {datosImagen}", restricciones="Identifica que objeto es y clasificalo en [Reciclable, No Reciclable, Aprovechable, Infeccioso], los daots que te doy son de un residuo sólido, devuelve SOLO la clasificacion")'
+    promptcito = f'Clasificar:"Residuo" (tipo="texto", contexto="Medidas fisicas de la muestra: {datosImagen}", restricciones="Identifica que objeto es. Clasificalo en una de estas opciones y responde UNICAMENTE con el numero de su posicion: 1 para Reciclable, 2 para No Reciclable, 3 para Aprovechable, 4 para Infeccioso. REGLA CRITICA: Tu respuesta debe ser SOLO un digito (ejemplo: 1). No uses texto, no uses palabras, no agregues saltos de linea (\\n) ni puntos")'
     tokenizador=Tokenizador()
     tokens=tokenizador.tokenizar(promptcito)
     parser=Parser(tokens)
