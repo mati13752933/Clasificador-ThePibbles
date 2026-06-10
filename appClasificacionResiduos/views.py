@@ -13,20 +13,25 @@ def clasificacion(request):
             ruta_imagen = fs.path(nombre_archivo)
             imagen_url = fs.url(nombre_archivo)
 
-            resultado_ia = maincito(ruta_imagen)
-            print("el resultado es: " + str(resultado_ia))
-
+            resultado_ia = str(maincito(ruta_imagen)).strip()
+            print("el resultado es:", repr(resultado_ia))
             mapa = {
                 "1": "Reciclable",
                 "2": "No Reciclable",
                 "3": "Aprovechable",
                 "4": "Infeccioso"
             }
-            resultado = {
-                "ok": True,
-                "clasificacion": mapa.get(str(resultado_ia).strip(), "Desconocido"),
-                "datos": resultado_ia
-            }
+            if resultado_ia in mapa:
+                resultado = {
+                    "ok": True,
+                    "clasificacion": mapa[resultado_ia],
+                    "datos": resultado_ia
+                }
+            else:
+                resultado = {
+                    "ok": False,
+                    "error": f"Respuesta inválida de la IA: {resultado_ia}"
+                }
 
             request.session["imagen_url"] = imagen_url
             request.session["resultado"] = resultado
