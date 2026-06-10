@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block contenido %}
+    <div class= "p-10">
+        <h1 class ="text-[70px] font-bold text-center my-4">
+            CLASIFICADOR DE RESIDUOS SÓLIDOS
+        </h1>
+        <h2 class="text-3xl font-bold text-center"> the pibbles</h2>
+        <p class = "text-xl font-normal text-center my-10">
+            El clasificador de residuos sólidos es una herramienta diseñada para ayudar a las personas a separar y clasificar adecuadamente los diferentes tipos de residuos que generan en su vida diaria. Este sistema utiliza tecnología avanzada, como sensores y algoritmos de inteligencia artificial, para identificar y categorizar los residuos en diferentes categorías, como plástico, papel, vidrio, metal y orgánicos. El objetivo principal del clasificador de residuos sólidos es promover la conciencia ambiental y facilitar el proceso de reciclaje, contribuyendo así a la reducción de la contaminación y al cuidado del medio ambiente.
+        </p>
+    </div>
+   <section class="px-10 py-12">
+        <h2 class="text-4xl font-bold mb-8 text-gray-800"">
+            MODULOS
+        </h2>
+        <div class="w-full min-h-[75vh]  bg-white flex gap-4 p-4">
+            <a href="#"
+            class="group flex-1 hover:flex-[4] h-full min-h-[70vh] overflow-hidden cursor-pointer rounded-2xl transition-all duration-500 bg-white border border-teal-500 flex justify-center items-center no-underline">
+                <span class="min-w-[14em] p-2 text-center -rotate-90 group-hover:hidden transition-all duration-500 uppercase text-teal-700 tracking-widest font-bold text-lg">
+                    Clasificación
+                </span>
+                <div class="hidden group-hover:flex w-full h-full bg-white items-center px-10 transition-all duration-500">
+                    <div class="bg-teal-500 w-20 h-20 rounded-2xl border-2 border-teal-500 flex items-center justify-center mr-6 shrink-0">
+                        <span class="text-teal-500 text-4xl bg-teal-500"></span>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-3xl font-bold text-black uppercase mb-3">
+                            Clasificación
+                        </h3>
+
+                        <p class="text-black text-base max-w-md">
+                            Analiza imágenes de residuos sólidos y ayuda a clasificarlos según su tipo.
+                        </p>
+                    </div>
+                </div>
+            </a>
+            <a href="#"
+            class="group flex-1 hover:flex-[4] h-full min-h-[70vh] overflow-hidden cursor-pointer rounded-2xl transition-all duration-500 bg-white border border-teal-500 flex justify-center items-center no-underline">
+
+                <span class="min-w-[14em] p-2 text-center -rotate-90 group-hover:hidden transition-all duration-500 uppercase text-teal-700 tracking-widest font-bold text-lg">
+                    Reportes
+                </span>
+
+                <div class="hidden group-hover:flex w-full h-full bg-white items-center px-10 transition-all duration-500">
+                    <div class="bg-teal-500 w-20 h-20 rounded-2xl border-2 border-teal-500 flex items-center justify-center mr-6 shrink-0">
+                        <span class="text-teal-500 text-4xl bg-teal-500"></span>
+                    </div>
+
+                    <div class="text-left">
+                        <h3 class="text-3xl font-bold text-black uppercase mb-3">
+                            Reportes
+                        </h3>
+
+                        <p class="text-black text-base max-w-md">
+                            Consulta resultados, estadísticas y registros generados por el sistema.
+                        </p>
+                    </div>
+                </div>
+            </a>
+            <a href="/admin/"
+            class="group flex-1 hover:flex-[4] h-full min-h-[70vh] overflow-hidden cursor-pointer rounded-2xl transition-all duration-500 bg-white border border-teal-500 flex justify-center items-center no-underline">
+                <span class="min-w-[14em] p-2 text-center -rotate-90 group-hover:hidden transition-all duration-500 uppercase text-teal-700 tracking-widest font-bold text-lg">
+                    Administración
+                </span>
+                <div class="hidden group-hover:flex w-full h-full bg-white items-center px-10 transition-all duration-500">
+                    <div class="bg-teal-500 w-20 h-20 rounded-2xl border-2 border-teal-500 flex items-center justify-center mr-6 shrink-0">
+                        <span class="text-teal-500 text-4xl "></span>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-3xl font-bold text-black uppercase mb-3">
+                            Administración
+                        </h3>
+
+                        <p class="text-black text-base max-w-md">
+                            Gestiona usuarios, registros y configuraciones internas del sistema.
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </section>
+
+{% endblock %}

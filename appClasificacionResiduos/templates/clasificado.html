@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block contenido  %}
+<section class="min-h-screen flex flex-col items-center px-6 py-10">
+
+    <h1 class="text-[60px] font-bold text-center my-8">
+        Resultado de Clasificación
+    </h1>
+
+    <p class="text-xl text-gray-600 text-center mb-8">
+        Imagen analizada y resultado obtenido por el sistema.
+    </p>
+
+    <div class="w-full max-w-[900px] bg-white rounded-3xl shadow-xl p-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+
+        <div class="w-full">
+            <h2 class="text-2xl font-bold text-black uppercase mb-4">
+                Imagen cargada
+            </h2>
+
+            {% if imagen_url %}
+                <img src="{{ imagen_url }}"
+                     alt="Imagen subida"
+                     class="w-full max-h-[420px] object-contain rounded-2xl border border-gray-300 shadow-md">
+            {% else %}
+                <div class="w-full h-[300px] flex items-center justify-center rounded-2xl border border-gray-300 bg-gray-100">
+                    <p class="text-gray-500">
+                        No hay imagen cargada.
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+        <div class="w-full">
+            <h2 class="text-2xl font-bold text-black uppercase mb-4">
+                Resultado
+            </h2>
+
+            <div class="rounded-2xl border border-teal-300 bg-teal-50 p-6">
+                {% if resultado %}
+                    
+                    {% if resultado.ok %}
+                        <p class="text-lg text-black mb-4">
+                            <strong>Clasificación:</strong>
+                            {{ resultado.clasificacion }}
+                        </p>
+
+                        <h3 class="text-lg font-bold text-black mb-2">
+                            Datos extraídos:
+                        </h3>
+
+                        <pre class="bg-white p-4 rounded-xl text-sm text-black overflow-auto border border-gray-200">{{ resultado.datos }}</pre>
+                    {% else %}
+                        <p class="text-red-600 font-bold">
+                            {{ resultado.error }}
+                        </p>
+                    {% endif %}
+
+                {% else %}
+                    <p class="text-gray-500">
+                        No se obtuvo ningún resultado.
+                    </p>
+                {% endif %}
+            </div>
+
+            <a href="{% url 'clasificacion' %}"
+               class="mt-6 inline-block bg-teal-500 text-white px-6 py-2 rounded-lg transition-all duration-200 active:scale-95 hover:ring-2 hover:ring-teal-500 hover:ring-offset-4">
+                Clasificar otra imagen
+            </a>
+        </div>
+
+    </div>
+
+</section>
+{% endblock%}
