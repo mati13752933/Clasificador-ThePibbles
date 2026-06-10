@@ -69,7 +69,7 @@ def hallarPromedioTono(recorte):#Entre los tonos del recorte(solo el objeto) te 
     cols=len(recorte[0])
     for i in range(filas):
         for j in range(cols):
-            total+=recorte[i][j][0]
+            total+=int(recorte[i][j][0])
     return int(total/(filas*cols))
 
 def analizarImagen(imagen):#el main xd
