@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import math
+import heapq
 
 import os
 from Libreria.thepibbles.Gramatica.lexer import Tokenizador
@@ -72,53 +73,40 @@ def hallarPromedioTono(recorte):#Entre los tonos del recorte(solo el objeto) te 
             total+=int(recorte[i][j][0])
     return int(total/(filas*cols))
 
-def analizarImagen(imagen):#el main xd
+def analizarImagen(imagen):
     img = cv2.imread(imagen)
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     mascara = cv2.inRange(hsv, np.array([0, 30, 30]), np.array([180, 255, 255]))
     contornos, basura = cv2.findContours(mascara, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    #esto es lo que el inge no enseño, pero devuelve una lista las intersecciones de puntos negros y blancos
-    #y se agarra el externo, por eso cv2.RETR_EXTERNAL, y cv2.CHAIN_APPROX_SIMPLE es en teoria 
-    #por si tienes un rectngulo, que no te agarre toda la arista, solo los puntos(ya que un contorno
-    #es una lista de listas de 2 que en [0] esta x, en [1] esta y, pero se guarda asi
-    # [[[x,y]][[x1,y1]]] ), entonces se accede con doble [0][1][1] y aqui accedo al y1, esta topxd
-    #por si acaso lo de basura es una wbda que genera, como la relacion que tienen, ponte cargas una lata 
-    #con agujeros, te pone que el padre es el contorno de la lata y sus hijos son sus agujeros
-    contorno=hallarMax(contornos)
-    x,y,b,a=hallarBloque(contorno)
-    area=hallarArea(contorno)
-    perimetro=hallarPerimetro(contorno)
-    ratio=round(b/a,2)
-    circularidad=round((4*math.pi*area)/(perimetro**2),2)
-    recorte=recortarCaja(hsv,x,y,b,a)
-    promedio=hallarPromedioTono(recorte)
-
-    #ya, mi idea final era mandarle este diccionario a la ia, y que en funcion a los datos lo
-    #clasifique ella, espero que no falle, porque sino supongo que le voy a cargar las 200 fotos
-    #eso lo hago mañana, cago de sueño zzz
-
-    return{
-        "tono Promedio":promedio,    
-        "ratio":ratio,               
-        "circularidad":circularidad, 
-        "area":int(area)             
-    }
-
-def maincito(imagen):
-    datosImagen=analizarImagen(imagen)
-    promptcito = f'Clasificar:"Residuo" (tipo="texto", contexto="Medidas fisicas de la muestra: {datosImagen}", restricciones="Identifica que objeto es. Clasificalo en una de estas opciones y responde UNICAMENTE con el numero de su posicion: 1 para Reciclable, 2 para No Reciclable, 3 para Aprovechable, 4 para Infeccioso. REGLA CRITICA: Tu respuesta debe ser SOLO un digito (ejemplo: 1). No uses texto, no uses palabras, no agregues saltos de linea (\\n) ni puntos")'
-    tokenizador=Tokenizador()
-    tokens=tokenizador.tokenizar(promptcito)
-    parser=Parser(tokens)
-    parseado=parser.parsear()
-    constructorcito=PromptBuilder()
-    promptFinal=constructorcito.construir(parseado)
-    ia=Ia()
-    res=ia.generar(promptFinal)
-    return res
+    colaPrioridad = []
+    for i in range(len(contornos)):
+        contorno = contornos[i]
+        area = hallarArea(contorno)
+        if area > 500:
+            heapq.heappush(colaPrioridad, (-area, i, contorno))
+    listaRecortes = []
+    while colaPrioridad:
+        areaNegativa,pos, contornoActual = heapq.heappop(colaPrioridad)
+        areaReal = abs(areaNegativa)
+        x, y, b, a = hallarBloque(contornoActual)
+        perimetro = hallarPerimetro(contornoActual)
+        ratio = round(b / a, 2) if a != 0 else 0
+        circularidad = round((4 * math.pi * areaReal) / (perimetro ** 2), 2)
+        recorte = recortarCaja(hsv, x, y, b, a)
+        promedio = hallarPromedioTono(recorte)
+        listaRecortes.append({
+            "objetoId": len(listaRecortes) + 1,
+            "tonoPromedio": promedio,    
+            "ratio": ratio,               
+            "circularidad": circularidad, 
+            "area": int(areaReal),
+            "coordenadasCaja": (x, y, b, a),
+            "puntosContorno": contornoActual
+        })
+    return listaRecortes
 
 
-#Ahora con mandando imagen a la ia
+#Ahora mandando imagen a la ia
 def maincitoImagenDirecta(imagen):
     promptcito = {"accion": "Clasificar", "tema": "Residuos", "parametros": {"tipo": "texto", "contexto": "Eres un Clasificador de residuos (plástico, lata, papel, madera, vidrio, carton, cáscaras de frutas, etc...)", "restricciones": "Clasifica el tipo de residuo que es, tiene que ser uno de estos: [Reciclable, No Reciclable, Aprovechable, Infeccioso], debes responder SOLO CON LA CLASIFICACION, no dar explicaciones ni nada"}}
     constructorcito = PromptBuilder()
