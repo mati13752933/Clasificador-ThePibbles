@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block contenido  %}
+{% load static %}
 <section class="min-h-screen flex flex-col items-center px-6 py-10">
 
     <h1 class="text-[60px] font-bold text-center my-8">
@@ -42,12 +43,17 @@
                             <strong>Clasificación:</strong>
                             {{ resultado.clasificacion }}
                         </p>
-
-                        <h3 class="text-lg font-bold text-black mb-2">
-                            Datos extraídos:
-                        </h3>
-
-                        <pre class="bg-white p-4 rounded-xl text-sm text-black overflow-auto border border-gray-200">{{ resultado.datos }}</pre>
+                        <div class="flex justify-center my-4">
+                            {% if resultado.clasificacion == 'Reciclable' %}
+                                <img src="{% static 'reciclable.png' %}" class="h-40 w-auto">
+                            {% elif resultado.clasificacion == 'No Reciclable' %}
+                                <img src="{% static 'noreciclable.png' %}" class="h-40 w-auto">
+                            {% elif resultado.clasificacion == 'Aprovechable' %}
+                                <img src="{% static 'aprovechable.png' %}" class="h-40 w-auto">
+                            {% elif resultado.clasificacion == 'Infeccioso' %}
+                                <img src="{% static 'infeccioso.png' %}" class="h-40 w-auto">
+                            {% endif %}
+                        </div>
                     {% else %}
                         <p class="text-red-600 font-bold">
                             {{ resultado.error }}

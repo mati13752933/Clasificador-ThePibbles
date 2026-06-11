@@ -16,7 +16,6 @@ def clasificacion(request):
             resultado = {
                 "ok": True,
                 "clasificacion": resultado_ia,
-                "datos": "Identificación directa por visión multimodal"
             }
             request.session["imagen_url"] = imagen_url
             request.session["resultado"] = resultado
