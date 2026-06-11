@@ -1,47 +1,29 @@
+import base64
 from django.shortcuts import render, redirect
-from django.core.files.storage import FileSystemStorage
 from .pipeline import maincito
+from .pipeline import maincitoImagenDirecta
 
 def clasificacion(request):
     if request.method == "POST":
         imagen = request.FILES.get("imagen")
-
         if imagen:
-            fs = FileSystemStorage(location="imagenes", base_url="/imagenes")
-            nombre_archivo = fs.save(imagen.name, imagen)
-
-            ruta_imagen = fs.path(nombre_archivo)
-            imagen_url = fs.url(nombre_archivo)
-
-            resultado_ia = str(maincito(ruta_imagen)).strip()
-            print("el resultado es:", repr(resultado_ia))
-            mapa = {
-                "1": "Reciclable",
-                "2": "No Reciclable",
-                "3": "Aprovechable",
-                "4": "Infeccioso"
+            resultado_ia = str(maincitoImagenDirecta(imagen)).strip()
+            print("El objeto identificado es:", repr(resultado_ia))
+            imagen.seek(0) 
+            imagen_bytes = imagen.read()
+            imagen_base64 = base64.b64encode(imagen_bytes).decode('utf-8')
+            imagen_url = f"data:{imagen.content_type};base64,{imagen_base64}"
+            resultado = {
+                "ok": True,
+                "clasificacion": resultado_ia,
+                "datos": "Identificación directa por visión multimodal"
             }
-            if resultado_ia in mapa:
-                resultado = {
-                    "ok": True,
-                    "clasificacion": mapa[resultado_ia],
-                    "datos": resultado_ia
-                }
-            else:
-                resultado = {
-                    "ok": False,
-                    "error": f"Respuesta inválida de la IA: {resultado_ia}"
-                }
-
             request.session["imagen_url"] = imagen_url
             request.session["resultado"] = resultado
-
             return redirect("resultado")
     return render(request, 'clasificacion.html')
 
 def resultado(request):
     imagen_url = request.session.get("imagen_url")
     resultado = request.session.get("resultado")
-    
-
     return render(request, 'clasificado.html', {"imagen_url": imagen_url, "resultado": resultado})

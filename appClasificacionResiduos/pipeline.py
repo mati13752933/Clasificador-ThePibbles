@@ -116,3 +116,23 @@ def maincito(imagen):
     ia=Ia()
     res=ia.generar(promptFinal)
     return res
+
+
+#Ahora con mandando imagen a la ia
+def maincitoImagenDirecta(imagen):
+    promptcito = {"accion": "Clasificar", "tema": "Residuos", "parametros": {"tipo": "texto", "contexto": "Eres un Clasificador de residuos (plástico, lata, papel, madera, vidrio, carton, cáscaras de frutas, etc...)", "restricciones": "Clasifica el tipo de residuo que es, tiene que ser uno de estos: [Reciclable, No Reciclable, Aprovechable, Infeccioso], debes responder SOLO CON LA CLASIFICACION, no dar explicaciones ni nada"}}
+    constructorcito = PromptBuilder()
+    prompt_final = constructorcito.construir(promptcito)
+    ia = Ia()
+    res = ia.generarConImagen(imagen.read(), imagen.content_type, prompt_final)
+    return res
+        
+#para LEITO
+def identificarImagen(imagen):
+    promptcito = {"accion": "Identificar", "tema": "Residuos", "parametros": {"tipo": "texto", "contexto": "Eres un Identificador de residuos (plástico, lata, papel, madera, vidrio, carton, cáscaras de frutas, etc...)", "restricciones": "Identifica el tipo de residuo que es, entre estas opciones: [plastico, papel, lata, madera, vidrio, cascara, carton, LO QUE VEAS LEITOxd]"}}
+    constructorcito = PromptBuilder()
+    prompt_final = constructorcito.construir(promptcito)
+    ia = Ia()
+    res = ia.generarConImagen(imagen.read(), imagen.content_type, prompt_final)
+    return res
+        
