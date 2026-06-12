@@ -74,53 +74,76 @@ def hallarPromedioTono(recorte):#Entre los tonos del recorte(solo el objeto) te 
     return int(total/(filas*cols))
 
 def comparar(listaRecortes):
-    baseDir=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    carpetaImagenes=os.path.join(baseDir, "imagenes")
+    baseDir=os.path.dirname(os.path.dirname(os.path.abspath(__file__))) #da la rutaa a la base del proyceto
+    carpetaImagenes=os.path.join(baseDir, "imagenes")#genera la ruta hasta la carpeta donde estna las imagnes
     archivosObjetos=[
+        "botellaPlastico1.png",
+        "botellaPlastico2.jpeg",
+        "botellaPlastico3.png",
+        "botellaVidrio1.png",
+        "cajaCarton1.png",
+        "cascaraFruta1.jpg",
+        "cascaraFruta2.jpg",
+        "cascaraFruta3.jpg",
+        "cigarro1.png",
+        "jeringa1.png",
+        "jeringa2.png",
         "lata1.jpg",
         "lata2.png",
-        "botellaPlatico1.png",
-        "botellaVidrio1.png"
+        "panial1.png",
+        "gasa1.png"
     ]
     datosObjetos=[]    
     for nombreArchivo in archivosObjetos:
-        ruta=os.path.join(carpetaImagenes, nombreArchivo)
+        ruta=os.path.join(carpetaImagenes, nombreArchivo)#solo crea la ruta
         if os.path.exists(ruta):
             analisis=analizarImagen(ruta)
-            if analisis:
+            if analisis:#todo lo demas se enteidne xd
                 infoObjeto=analisis[0]
                 if "lata" in nombreArchivo.lower():
                     tipoPredicho="lata"
-                elif "plastico" in nombreArchivo.lower():
+                elif "plastico" in nombreArchivo.lower() or "plastico" in nombreArchivo.lower():
                     tipoPredicho="botella de plástico"
                 elif "vidrio" in nombreArchivo.lower():
                     tipoPredicho="botella de vidrio"
+                elif "carton" in nombreArchivo.lower():
+                    tipoPredicho="caja de cartón"
+                elif "cascara" in nombreArchivo.lower():
+                    tipoPredicho="cáscara de fruta"
+                elif "cigarro" in nombreArchivo.lower():
+                    tipoPredicho="colilla de cigarro"
+                elif "jeringa" in nombreArchivo.lower():
+                    tipoPredicho="jeringa médica"
+                elif "panial" in nombreArchivo.lower():
+                    tipoPredicho="pañal usado"
+                elif "gasa" in nombreArchivo.lower():
+                    tipoPredicho="gasa hospitalaria"
                 else:
                     tipoPredicho="residuo"                    
                 infoObjeto["tipoReferencia"]=tipoPredicho
-                datosObjetos.append(infoObjeto)       
+                datosObjetos.append(infoObjeto)
     for obj in listaRecortes:
         maxSimilitud=0.0
         tipoGanador="objeto desconocido"
-        for lata in datosObjetos:
-            if lata["ratio"]>0:
-                difRatio=abs(obj["ratio"]-lata["ratio"])/(lata["ratio"])
+        for ref in datosObjetos:
+            if ref["ratio"]>0:
+                difRatio=abs(obj["ratio"]-ref["ratio"])/(ref["ratio"])
             else:
-                difRatio=abs(obj["ratio"]-lata["ratio"])/1
-            if lata["circularidad"]>0:
-                difCirc=abs(obj["circularidad"]-lata["circularidad"])/(lata["circularidad"])
+                difRatio=abs(obj["ratio"]-ref["ratio"])/1
+            if ref["circularidad"]>0:
+                difCirc=abs(obj["circularidad"]-ref["circularidad"])/(ref["circularidad"])
             else:
-                difCirc=abs(obj["circularidad"]-lata["circularidad"])/1
-            difTono=abs(obj["tonoPromedio"]-lata["tonoPromedio"])/180.0
-            if lata["area"]>0:
-                difArea=abs(obj["area"]-lata["area"])/(lata["area"])
+                difCirc=abs(obj["circularidad"]-ref["circularidad"])/1
+            difTono=abs(obj["tonoPromedio"]-ref["tonoPromedio"])/180.0
+            if ref["area"]>0:
+                difArea=abs(obj["area"]-ref["area"])/(ref["area"])
             else:
-                difArea=abs(obj["area"]-lata["area"])/1
+                difArea=abs(obj["area"]-ref["area"])/1
             distancia=(difRatio*0.3)+(difCirc*0.3)+(difTono*0.2)+(difArea*0.2)
             similitud=max(0.0,100.0*(1.0-distancia))
             if similitud>maxSimilitud:
                 maxSimilitud=similitud
-                tipoGanador=lata["tipoReferencia"]
+                tipoGanador=ref["tipoReferencia"]
         obj["similtudReferencia"] = round(maxSimilitud, 2)
         obj["tipoClasificado"] = tipoGanador
     return listaRecortes
@@ -169,15 +192,7 @@ def analizarImagen(imagen):
         })
     return listaRecortes
 
-#Ahora mandando imagen a la ia
-def maincitoImagenDirecta(imagen):
-    promptcito = {"accion": "Clasificar", "tema": "Residuos", "parametros": {"tipo": "texto", "contexto": "Eres un Clasificador de residuos (plástico, lata, papel, madera, vidrio, carton, cáscaras de frutas, etc...)", "restricciones": "Clasifica el tipo de residuo que es, tiene que ser uno de estos: [Reciclable, No Reciclable, Aprovechable, Infeccioso], debes responder SOLO CON LA CLASIFICACION, no dar explicaciones ni nada"}}
-    constructorcito = PromptBuilder()
-    prompt_final = constructorcito.construir(promptcito)
-    ia = Ia()
-    res = ia.generarConImagen(imagen.read(), imagen.content_type, prompt_final)
-    return res
-    
+
 def mainPrimeCompletoInsanoKaiokenSsj5(imagen, archivo_bytes):
     listita = analizarImagen(imagen)
     listita = comparar(listita)
@@ -190,6 +205,16 @@ def mainPrimeCompletoInsanoKaiokenSsj5(imagen, archivo_bytes):
     ia = Ia()
     res=ia.generarConImagen(archivo_bytes.read(), archivo_bytes.content_type, promptFinal)
     return res
+
+
+
+
+
+
+
+
+
+
 
 #para LEITO
 def identificarImagen(imagen):
