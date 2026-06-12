@@ -1,83 +1,323 @@
 {% extends 'base.html' %}
+
 {% block contenido %}
-    <div class= "p-10">
-        <h1 class ="text-[70px] font-bold text-center my-4">
-            CLASIFICADOR DE RESIDUOS SÓLIDOS
-        </h1>
-        <h2 class="text-3xl font-bold text-center"> the pibbles</h2>
-        <p class = "text-xl font-normal text-center my-10">
-            El clasificador de residuos sólidos es una herramienta diseñada para ayudar a las personas a separar y clasificar adecuadamente los diferentes tipos de residuos que generan en su vida diaria. Este sistema utiliza tecnología avanzada, como sensores y algoritmos de inteligencia artificial, para identificar y categorizar los residuos en diferentes categorías, como plástico, papel, vidrio, metal y orgánicos. El objetivo principal del clasificador de residuos sólidos es promover la conciencia ambiental y facilitar el proceso de reciclaje, contribuyendo así a la reducción de la contaminación y al cuidado del medio ambiente.
-        </p>
+
+<section class="min-h-screen w-full px-10 py-10">
+
+    <h1 class="text-[80px] font-bold text-center my-6">
+        The Pibbles
+    </h1>
+
+    <p class="text-xl text-gray-600 text-center mb-10">
+        Plataforma web para la clasificación, control y gestión de residuos sólidos.
+    </p>
+
+    <div class="flex gap-3 w-full h-[10vh] items-stretch">
+
+        <button onclick="mostrarSeccion('sobreWeb', this)"
+                class="card-opcion flex-[2] bg-teal-500 text-white h-full rounded-2xl transition-all duration-300 ease-in-out flex items-center justify-center font-bold text-2xl border border-teal-500 cursor-pointer">
+            Sobre la web
+        </button>
+
+        <button onclick="mostrarSeccion('clasificaciones', this)"
+                class="card-opcion flex-1 hover:flex-[2] bg-white  text-black  h-full rounded-2xl transition-all duration-300 ease-in-out flex items-center justify-center font-bold text-2xl border border-teal-500 cursor-pointer">
+            Clasificaciones
+        </button>
+
+        <button onclick="mostrarSeccion('modulos', this)"
+                class="card-opcion flex-1 hover:flex-[2] bg-white  text-black  h-full rounded-2xl transition-all duration-300 ease-in-out flex items-center justify-center font-bold text-2xl border border-teal-500 cursor-pointer">
+            Módulos
+        </button>
+
+        <button onclick="mostrarSeccion('aboutUs', this)"
+                class="card-opcion flex-1 hover:flex-[2] bg-white text-black  h-full rounded-2xl transition-all duration-300 ease-in-out flex items-center justify-center font-bold text-2xl border border-teal-500 cursor-pointer">
+            About us
+        </button>
+
     </div>
-   <section class="px-10 py-12">
-        <h2 class="text-4xl font-bold mb-8 text-gray-800"">
-            MODULOS
-        </h2>
-        <div class="w-full min-h-[75vh]  bg-white flex gap-4 p-4">
-            <a href="#"
-            class="group flex-1 hover:flex-[4] h-full min-h-[70vh] overflow-hidden cursor-pointer rounded-2xl transition-all duration-500 bg-white border border-teal-500 flex justify-center items-center no-underline">
-                <span class="min-w-[14em] p-2 text-center -rotate-90 group-hover:hidden transition-all duration-500 uppercase text-teal-700 tracking-widest font-bold text-lg">
-                    Clasificación
-                </span>
-                <div class="hidden group-hover:flex w-full h-full bg-white items-center px-10 transition-all duration-500">
-                    <div class="bg-teal-500 w-20 h-20 rounded-2xl border-2 border-teal-500 flex items-center justify-center mr-6 shrink-0">
-                        <span class="text-teal-500 text-4xl bg-teal-500"></span>
-                    </div>
-                    <div class="text-left">
-                        <h3 class="text-3xl font-bold text-black uppercase mb-3">
-                            Clasificación
-                        </h3>
 
-                        <p class="text-black text-base max-w-md">
-                            Analiza imágenes de residuos sólidos y ayuda a clasificarlos según su tipo.
-                        </p>
-                    </div>
-                </div>
-            </a>
-            <a href="#"
-            class="group flex-1 hover:flex-[4] h-full min-h-[70vh] overflow-hidden cursor-pointer rounded-2xl transition-all duration-500 bg-white border border-teal-500 flex justify-center items-center no-underline">
+    <div class="w-full mt-10">
 
-                <span class="min-w-[14em] p-2 text-center -rotate-90 group-hover:hidden transition-all duration-500 uppercase text-teal-700 tracking-widest font-bold text-lg">
-                    Reportes
-                </span>
+        <div id="sobreWeb" class="seccion-info bg-white p-10 ">
+            <h2 class="text-5xl font-bold text-black mb-6">
+                Sobre la web
+            </h2>
 
-                <div class="hidden group-hover:flex w-full h-full bg-white items-center px-10 transition-all duration-500">
-                    <div class="bg-teal-500 w-20 h-20 rounded-2xl border-2 border-teal-500 flex items-center justify-center mr-6 shrink-0">
-                        <span class="text-teal-500 text-4xl bg-teal-500"></span>
-                    </div>
+            <p class="text-xl text-black leading-relaxed">
+                The Pibbles es una aplicación web diseñada para ayudar a los usuarios a clasificar residuos sólidos de manera rápida y sencilla. El sistema permite cargar imágenes, usar la cámara, recibir recomendaciones y consultar información útil sobre el manejo adecuado de residuos.
+            </p>
 
-                    <div class="text-left">
-                        <h3 class="text-3xl font-bold text-black uppercase mb-3">
-                            Reportes
-                        </h3>
-
-                        <p class="text-black text-base max-w-md">
-                            Consulta resultados, estadísticas y registros generados por el sistema.
-                        </p>
-                    </div>
-                </div>
-            </a>
-            <a href="/admin/"
-            class="group flex-1 hover:flex-[4] h-full min-h-[70vh] overflow-hidden cursor-pointer rounded-2xl transition-all duration-500 bg-white border border-teal-500 flex justify-center items-center no-underline">
-                <span class="min-w-[14em] p-2 text-center -rotate-90 group-hover:hidden transition-all duration-500 uppercase text-teal-700 tracking-widest font-bold text-lg">
-                    Administración
-                </span>
-                <div class="hidden group-hover:flex w-full h-full bg-white items-center px-10 transition-all duration-500">
-                    <div class="bg-teal-500 w-20 h-20 rounded-2xl border-2 border-teal-500 flex items-center justify-center mr-6 shrink-0">
-                        <span class="text-teal-500 text-4xl "></span>
-                    </div>
-                    <div class="text-left">
-                        <h3 class="text-3xl font-bold text-black uppercase mb-3">
-                            Administración
-                        </h3>
-
-                        <p class="text-black text-base max-w-md">
-                            Gestiona usuarios, registros y configuraciones internas del sistema.
-                        </p>
-                    </div>
-                </div>
-            </a>
+            <p class="text-xl text-black leading-relaxed mt-5">
+                Su objetivo es reducir errores de clasificación, fomentar hábitos ambientales responsables y facilitar la gestión de residuos mediante módulos de clasificación, reportes, administración y contabilidad.
+            </p>
         </div>
-    </section>
+
+        <div id="clasificaciones" class="seccion-info hidden bg-white ">
+            <h2 class="text-5xl font-bold text-black mb-6">
+                Información sobre las clasificaciones
+            </h2>
+            
+           <div class="w-full h-[420px] rounded-2xl bg-white flex gap-2 p-2 ">
+
+                <div class="group h-full flex-1 hover:flex-[4] overflow-hidden cursor-pointer rounded-xl transition-all duration-500 bg-white border border-teal-500 flex justify-center items-center">
+                    
+                    <span class="min-w-[16em] p-2 text-center -rotate-90 group-hover:hidden transition-all duration-500 uppercase text-teal-700 tracking-widest font-bold">
+                        Reciclable
+                    </span>
+
+                    <div class="hidden group-hover:flex flex-col justify-center items-start h-full w-full p-6 text-left">
+                        <h3 class="text-3xl font-bold text-black uppercase mb-3">
+                            Reciclable
+                        </h3>
+
+                        <p class="text-black text-base mb-4">
+                            Son residuos que pueden transformarse en materia prima para crear nuevos productos. Deben estar limpios, secos y separados.
+                        </p>
+
+                        <div class="grid grid-cols-2 gap-2 w-full">
+                            <div class="bg-teal-50 border border-teal-300 rounded-lg p-2">
+                                <h4 class="font-bold text-teal-700">Plástico</h4>
+                                <p class="text-xs text-black">Botellas PET, tapas, envases.</p>
+                            </div>
+
+                            <div class="bg-teal-50 border border-teal-300 rounded-lg p-2">
+                                <h4 class="font-bold text-teal-700">Papel</h4>
+                                <p class="text-xs text-black">Hojas, revistas, cuadernos.</p>
+                            </div>
+
+                            <div class="bg-teal-50 border border-teal-300 rounded-lg p-2">
+                                <h4 class="font-bold text-teal-700">Cartón</h4>
+                                <p class="text-xs text-black">Cajas y empaques secos.</p>
+                            </div>
+
+                            <div class="bg-teal-50 border border-teal-300 rounded-lg p-2">
+                                <h4 class="font-bold text-teal-700">Vidrio</h4>
+                                <p class="text-xs text-black">Botellas y frascos limpios.</p>
+                            </div>
+
+                            <div class="bg-teal-50 border border-teal-300 rounded-lg p-2">
+                                <h4 class="font-bold text-teal-700">Metal</h4>
+                                <p class="text-xs text-black">Latas y tapas metálicas.</p>
+                            </div>
+
+                            <div class="bg-teal-50 border border-teal-300 rounded-lg p-2">
+                                <h4 class="font-bold text-teal-700">Tetrapak</h4>
+                                <p class="text-xs text-black">Envases de leche o jugo.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group h-full flex-1 hover:flex-[4] overflow-hidden cursor-pointer rounded-xl transition-all duration-500 bg-white border border-teal-500 flex justify-center items-center">
+                    
+                    <span class="min-w-[16em] p-2 text-center -rotate-90 group-hover:hidden transition-all duration-500 uppercase text-teal-700 tracking-widest font-bold">
+                        No reciclable
+                    </span>
+
+                    <div class="hidden group-hover:flex flex-col justify-center items-start h-full w-full p-6 text-left">
+                        <h3 class="text-3xl font-bold text-black uppercase mb-3">
+                            No reciclable
+                        </h3>
+
+                        <p class="text-black text-base mb-4">
+                            Son residuos que no pueden reciclarse fácilmente o están contaminados con comida, grasa, químicos u otros materiales.
+                        </p>
+
+                        <ul class="list-disc list-inside text-black text-base space-y-2">
+                            <li>Servilletas usadas.</li>
+                            <li>Papel higiénico.</li>
+                            <li>Pañales.</li>
+                            <li>Envolturas sucias.</li>
+                            <li>Tecnopor contaminado.</li>
+                            <li>Colillas de cigarro.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="group h-full flex-1 hover:flex-[4] overflow-hidden cursor-pointer rounded-xl transition-all duration-500 bg-white border border-teal-500 flex justify-center items-center">
+                    
+                    <span class="min-w-[16em] p-2 text-center -rotate-90 group-hover:hidden transition-all duration-500 uppercase text-teal-700 tracking-widest font-bold">
+                        Aprovechable
+                    </span>
+
+                    <div class="hidden group-hover:flex flex-col justify-center items-start h-full w-full p-6 text-left">
+                        <h3 class="text-3xl font-bold text-black uppercase mb-3">
+                            Aprovechable
+                        </h3>
+
+                        <p class="text-black text-base mb-4">
+                            Son residuos que todavía pueden tener utilidad mediante reutilización, compostaje, reparación, donación o transformación.
+                        </p>
+
+                        <ul class="list-disc list-inside text-black text-base space-y-2">
+                            <li>Cáscaras de frutas.</li>
+                            <li>Restos de verduras.</li>
+                            <li>Hojas secas.</li>
+                            <li>Ropa en buen estado.</li>
+                            <li>Cajas reutilizables.</li>
+                            <li>Botellas retornables.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="group h-full flex-1 hover:flex-[4] overflow-hidden cursor-pointer rounded-xl transition-all duration-500 bg-white border border-teal-500 flex justify-center items-center">
+                    
+                    <span class="min-w-[16em] p-2 text-center -rotate-90 group-hover:hidden transition-all duration-500 uppercase text-teal-700 tracking-widest font-bold">
+                        Infeccioso
+                    </span>
+
+                    <div class="hidden group-hover:flex flex-col justify-center items-start h-full w-full p-6 text-left">
+                        <h3 class="text-3xl font-bold text-black uppercase mb-3">
+                            Infeccioso
+                        </h3>
+
+                        <p class="text-black text-base mb-4">
+                            Son residuos que pueden contener microorganismos, sangre, fluidos corporales o material médico contaminado.
+                        </p>
+
+                        <ul class="list-disc list-inside text-black text-base space-y-2">
+                            <li>Jeringas.</li>
+                            <li>Gasas con sangre.</li>
+                            <li>Guantes médicos usados.</li>
+                            <li>Mascarillas contaminadas.</li>
+                            <li>Algodones con fluidos.</li>
+                            <li>Objetos punzocortantes usados.</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div id="modulos" class="seccion-info hidden bg-white">
+            <h2 class="text-5xl font-bold text-black mb-6">
+                Módulos del sistema
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <div class="rounded-2xl border border-teal-300 p-6 bg-white shadow-md">
+                    <h3 class="text-3xl font-bold text-teal-700 mb-3">
+                        Clasificación
+                    </h3>
+                    <p class="text-black text-lg">
+                        Permite subir imágenes o usar la cámara para identificar residuos sólidos y clasificarlos.
+                    </p>
+                </div>
+
+                <div class="rounded-2xl border border-teal-300 p-6 bg-white shadow-md">
+                    <h3 class="text-3xl font-bold text-teal-700 mb-3">
+                        Reportes
+                    </h3>
+                    <p class="text-black text-lg">
+                        Muestra historial de clasificaciones, estadísticas y datos útiles sobre el uso del sistema.
+                    </p>
+                </div>
+
+                <div class="rounded-2xl border border-teal-300 p-6 bg-white shadow-md">
+                    <h3 class="text-3xl font-bold text-teal-700 mb-3">
+                        Administración
+                    </h3>
+                    <p class="text-black text-lg">
+                        Gestiona usuarios, categorías, información interna y configuraciones del sistema.
+                    </p>
+                </div>
+
+                <div class="rounded-2xl border border-teal-300 p-6 bg-white shadow-md">
+                    <h3 class="text-3xl font-bold text-teal-700 mb-3">
+                        Control por voz
+                    </h3>
+                    <p class="text-black text-lg">
+                        Permite navegar o ejecutar acciones mediante comandos de voz.
+                    </p>
+                </div>
+
+                <div class="rounded-2xl border border-teal-300 p-6 bg-white shadow-md">
+                    <h3 class="text-3xl font-bold text-teal-700 mb-3">
+                        Alertas
+                    </h3>
+                    <p class="text-black text-lg">
+                        Advierte al usuario cuando se detectan residuos peligrosos o infecciosos.
+                    </p>
+                </div>
+
+                <div class="rounded-2xl border border-teal-300 p-6 bg-white shadow-md">
+                    <h3 class="text-3xl font-bold text-teal-700 mb-3">
+                        Contabilidad
+                    </h3>
+                    <p class="text-black text-lg">
+                        Registra ingresos, egresos y balances relacionados con residuos aprovechables o reciclables.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="aboutUs" class="seccion-info hidden bg-white p-10 ">
+            <h2 class="text-5xl font-bold text-black mb-6">
+                About us
+            </h2>
+
+            <p class="text-xl text-black leading-relaxed">
+                The Pibbles es un proyecto desarrollado con el propósito de aportar una solución tecnológica al problema de la mala clasificación de residuos sólidos. La plataforma combina visión artificial, interacción por voz, administración de datos y reportes.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+
+                <div class="rounded-2xl border border-teal-300 p-6 bg-teal-50">
+                    <h3 class="text-2xl font-bold text-teal-700">
+                        Clasificación de residuos
+                    </h3>
+                    <p class="text-black text-lg mt-3">
+                        Encargado: Matias Matias Revollo Cornejo
+                    </p>
+                </div>
+
+                <div class="rounded-2xl border border-teal-300 p-6 bg-teal-50">
+                    <h3 class="text-2xl font-bold text-teal-700">
+                        Control y administración
+                    </h3>
+                    <p class="text-black text-lg mt-3">
+                        Encargado: Nicol Eid Gorena
+                    </p>
+                </div>
+
+                <div class="rounded-2xl border border-teal-300 p-6 bg-teal-50">
+                    <h3 class="text-2xl font-bold text-teal-700">
+                        Contabilidad
+                    </h3>
+                    <p class="text-black text-lg mt-3">
+                        Encargado: Leonardo Jhonny Rivas Olivera
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+<script>
+    function mostrarSeccion(idSeccion, botonActivo) {
+        const secciones = document.querySelectorAll(".seccion-info");
+        const botones = document.querySelectorAll(".card-opcion");
+
+        secciones.forEach(seccion => {
+            seccion.classList.add("hidden");
+        });
+
+        document.getElementById(idSeccion).classList.remove("hidden");
+
+        botones.forEach(boton => {
+            boton.classList.remove("flex-[2]", "bg-teal-500", "text-white");
+            boton.classList.add("flex-1", "bg-white", "text-black", "hover:flex-[2]");
+        });
+
+        botonActivo.classList.remove("flex-1", "bg-white", "text-black", "hover:bg-teal-500", "hover:text-white");
+        botonActivo.classList.add("flex-[2]", "bg-teal-500", "text-white");
+    }
+</script>
 
 {% endblock %}

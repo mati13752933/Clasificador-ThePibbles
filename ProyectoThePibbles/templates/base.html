@@ -36,15 +36,25 @@
                 </li>
             </ul>
         </nav>
+    
         <div class="justify-self-end flex items-center gap-6">
-            <a href="" class="inline-block bg-teal-500 text-white px-6 py-2 rounded-lg font-normal transition-all duration-200 active:scale-95 hover:ring-2 hover:ring-teal-500 hover:ring-offset-4">
+            {%if user.is_authenticated %}
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button class="inline-block bg-teal-500 text-white px-6 py-2 rounded-lg font-normal transition-all duration-200 active:scale-95 hover:ring-2 hover:ring-teal-500 hover:ring-offset-4">
+                    Cerrar sesión
+                </button>
+            </form>
+            {% else %}
+            <a href="{% url 'login' %}" class="inline-block bg-teal-500 text-white px-6 py-2 rounded-lg font-normal transition-all duration-200 active:scale-95 hover:ring-2 hover:ring-teal-500 hover:ring-offset-4">
                 Inicia sesión
             </a>
-            <a href="" class="inline-block bg-white text-teal-500 border border-teal-500 px-6 py-2 rounded-lg font-normal transition-all duration-200 active:scale-95 hover:ring-2 hover:ring-teal-500 hover:ring-offset-4">
+            <a href="{% url 'register' %}" class="inline-block bg-white text-teal-500 border border-teal-500 px-6 py-2 rounded-lg font-normal transition-all duration-200 active:scale-95 hover:ring-2 hover:ring-teal-500 hover:ring-offset-4">
                 Registrate
             </a>
+            {% endif %}
         </div>
-
+        
     
     </div>
     <main>

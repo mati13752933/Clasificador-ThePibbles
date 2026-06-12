@@ -1,8 +1,9 @@
 import base64
 from django.shortcuts import render, redirect
-from .pipeline import maincito
 from .pipeline import maincitoImagenDirecta
+from django.contrib.auth.decorators import login_required 
 
+@login_required
 def clasificacion(request):
     if request.method == "POST":
         imagen = request.FILES.get("imagen")
@@ -22,6 +23,7 @@ def clasificacion(request):
             return redirect("resultado")
     return render(request, 'clasificacion.html')
 
+@login_required
 def resultado(request):
     imagen_url = request.session.get("imagen_url")
     resultado = request.session.get("resultado")
