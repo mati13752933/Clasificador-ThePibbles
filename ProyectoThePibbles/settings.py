@@ -123,3 +123,7 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = '/imagenes/'
 MEDIA_ROOT = BASE_DIR / 'imagenes'
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'inicio'
+LOGOUT_REDIRECT_URL = 'inicio'
