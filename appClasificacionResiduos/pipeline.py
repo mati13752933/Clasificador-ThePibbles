@@ -73,24 +73,88 @@ def hallarPromedioTono(recorte):#Entre los tonos del recorte(solo el objeto) te 
             total+=int(recorte[i][j][0])
     return int(total/(filas*cols))
 
+def comparar(listaRecortes):
+    baseDir=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    carpetaImagenes=os.path.join(baseDir, "imagenes")
+    archivosObjetos=[
+        "lata1.jpg",
+        "lata2.png",
+        "botellaPlatico1.png",
+        "botellaVidrio1.png"
+    ]
+    datosObjetos=[]    
+    for nombreArchivo in archivosObjetos:
+        ruta=os.path.join(carpetaImagenes, nombreArchivo)
+        if os.path.exists(ruta):
+            analisis=analizarImagen(ruta)
+            if analisis:
+                infoObjeto=analisis[0]
+                if "lata" in nombreArchivo.lower():
+                    tipoPredicho="lata"
+                elif "plastico" in nombreArchivo.lower():
+                    tipoPredicho="botella de plástico"
+                elif "vidrio" in nombreArchivo.lower():
+                    tipoPredicho="botella de vidrio"
+                else:
+                    tipoPredicho="residuo"                    
+                infoObjeto["tipoReferencia"]=tipoPredicho
+                datosObjetos.append(infoObjeto)       
+    for obj in listaRecortes:
+        maxSimilitud=0.0
+        tipoGanador="objeto desconocido"
+        for lata in datosObjetos:
+            if lata["ratio"]>0:
+                difRatio=abs(obj["ratio"]-lata["ratio"])/(lata["ratio"])
+            else:
+                difRatio=abs(obj["ratio"]-lata["ratio"])/1
+            if lata["circularidad"]>0:
+                difCirc=abs(obj["circularidad"]-lata["circularidad"])/(lata["circularidad"])
+            else:
+                difCirc=abs(obj["circularidad"]-lata["circularidad"])/1
+            difTono=abs(obj["tonoPromedio"]-lata["tonoPromedio"])/180.0
+            if lata["area"]>0:
+                difArea=abs(obj["area"]-lata["area"])/(lata["area"])
+            else:
+                difArea=abs(obj["area"]-lata["area"])/1
+            distancia=(difRatio*0.3)+(difCirc*0.3)+(difTono*0.2)+(difArea*0.2)
+            similitud=max(0.0,100.0*(1.0-distancia))
+            if similitud>maxSimilitud:
+                maxSimilitud=similitud
+                tipoGanador=lata["tipoReferencia"]
+        obj["similtudReferencia"] = round(maxSimilitud, 2)
+        obj["tipoClasificado"] = tipoGanador
+    return listaRecortes
+
+#Explicacion xdd
 def analizarImagen(imagen):
-    img = cv2.imread(imagen)
+
+    if isinstance(imagen, str):# Si es una ruta de texto (las referencias)
+            img = cv2.imread(imagen)
+    else:# Si ya es la matriz de pixeles de Django
+            img = imagen
+    gris = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)#lo vuelve emo (negro, gris y blacno)
+    difuminado = cv2.GaussianBlur(gris, (5, 5), 0)#elimina ruido pequeño de pixeles
+    bordes = cv2.Canny(difuminado, 30, 150)#saca todos los bordes
+    grosor = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7))#genera el grosor
+    mascaraCerrada = cv2.morphologyEx(bordes, cv2.MORPH_CLOSE, grosor)#cierra grietas engordando y luego vuelve
+    contornosBordes, _ = cv2.findContours(mascaraCerrada, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)#lista de listas de cc
+    mascaraFinal = np.zeros_like(gris)#genera una imagen negra del mismo tamaño
+    cv2.drawContours(mascaraFinal, contornosBordes, -1, (255), thickness=cv2.FILLED)#Dibuja en la imagen negra los contornos
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    mascara = cv2.inRange(hsv, np.array([0, 30, 30]), np.array([180, 255, 255]))
-    contornos, basura = cv2.findContours(mascara, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    colaPrioridad = []
+    contornos, basura = cv2.findContours(mascaraFinal, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)#saca otra vez, pero ya es imagen limpia
+    colaPrioridad=[]
     for i in range(len(contornos)):
         contorno = contornos[i]
         area = hallarArea(contorno)
-        if area > 500:
+        if area > 500:#si es muy pequeña no entra, pq seguro es basura
             heapq.heappush(colaPrioridad, (-area, i, contorno))
     listaRecortes = []
     while colaPrioridad:
-        areaNegativa,pos, contornoActual = heapq.heappop(colaPrioridad)
+        areaNegativa, pos, contornoActual = heapq.heappop(colaPrioridad)
         areaReal = abs(areaNegativa)
         x, y, b, a = hallarBloque(contornoActual)
         perimetro = hallarPerimetro(contornoActual)
-        ratio = round(b / a, 2) if a != 0 else 0
+        ratio = round(b / a, 2)
         circularidad = round((4 * math.pi * areaReal) / (perimetro ** 2), 2)
         recorte = recortarCaja(hsv, x, y, b, a)
         promedio = hallarPromedioTono(recorte)
@@ -105,7 +169,6 @@ def analizarImagen(imagen):
         })
     return listaRecortes
 
-
 #Ahora mandando imagen a la ia
 def maincitoImagenDirecta(imagen):
     promptcito = {"accion": "Clasificar", "tema": "Residuos", "parametros": {"tipo": "texto", "contexto": "Eres un Clasificador de residuos (plástico, lata, papel, madera, vidrio, carton, cáscaras de frutas, etc...)", "restricciones": "Clasifica el tipo de residuo que es, tiene que ser uno de estos: [Reciclable, No Reciclable, Aprovechable, Infeccioso], debes responder SOLO CON LA CLASIFICACION, no dar explicaciones ni nada"}}
@@ -114,7 +177,20 @@ def maincitoImagenDirecta(imagen):
     ia = Ia()
     res = ia.generarConImagen(imagen.read(), imagen.content_type, prompt_final)
     return res
-        
+    
+def mainPrimeCompletoInsanoKaiokenSsj5(imagen, archivo_bytes):
+    listita = analizarImagen(imagen)
+    listita = comparar(listita)
+    objetoPrincipal=listita[0]
+    porcentaje=objetoPrincipal["similtudReferencia"]
+    tipoObjeto=objetoPrincipal["tipoClasificado"]
+    promptcito={"accion": "Clasificar", "tema": "Residuos", "parametros": {"tipo": "texto", "contexto": f"Eres un Clasificador de residuos. El algoritmo de visión artificial determinó que el objeto principal analizado geométricamente tiene un {porcentaje}% de similitud matemática con una '{tipoObjeto}'. Utiliza este dato junto con la imagen para clasificar con precisión.", "restricciones": "Clasifica el tipo de residuo que es, tiene que ser uno de estos: [Reciclable, No Reciclable, Aprovechable, Infeccioso]. Responde ÚNICAMENTE la clasificación."}}
+    constructorcito=PromptBuilder()
+    promptFinal =constructorcito.construir(promptcito)
+    ia = Ia()
+    res=ia.generarConImagen(archivo_bytes.read(), archivo_bytes.content_type, promptFinal)
+    return res
+
 #para LEITO
 def identificarImagen(imagen):
     promptcito = {"accion": "Identificar", "tema": "Residuos", "parametros": {"tipo": "texto", "contexto": "Eres un Identificador de residuos (plástico, lata, papel, madera, vidrio, carton, cáscaras de frutas, etc...)", "restricciones": "Identifica el tipo de residuo que es, entre estas opciones: [plastico, papel, lata, madera, vidrio, cascara, carton, LO QUE VEAS LEITOxd]"}}
@@ -123,4 +199,3 @@ def identificarImagen(imagen):
     ia = Ia()
     res = ia.generarConImagen(imagen.read(), imagen.content_type, prompt_final)
     return res
-        

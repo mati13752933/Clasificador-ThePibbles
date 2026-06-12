@@ -1,6 +1,8 @@
 import base64
+import cv2
+import numpy as np
 from django.shortcuts import render, redirect
-from .pipeline import maincitoImagenDirecta
+from .pipeline import mainPrimeCompletoInsanoKaiokenSsj5
 from django.contrib.auth.decorators import login_required 
 
 @login_required
@@ -8,10 +10,12 @@ def clasificacion(request):
     if request.method == "POST":
         imagen = request.FILES.get("imagen")
         if imagen:
-            resultado_ia = str(maincitoImagenDirecta(imagen)).strip()
-            print("El objeto identificado es:", repr(resultado_ia))
-            imagen.seek(0) 
             imagen_bytes = imagen.read()
+            imagen.seek(0)
+            np_arr = np.frombuffer(imagen_bytes, np.uint8)
+            img_opencv = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+            resultado_ia = str(mainPrimeCompletoInsanoKaiokenSsj5(img_opencv, imagen)).strip()
+            print("El objeto identificado es:", repr(resultado_ia))
             imagen_base64 = base64.b64encode(imagen_bytes).decode('utf-8')
             imagen_url = f"data:{imagen.content_type};base64,{imagen_base64}"
             resultado = {
