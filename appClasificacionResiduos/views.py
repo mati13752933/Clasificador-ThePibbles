@@ -4,6 +4,8 @@ import numpy as np
 from django.shortcuts import render, redirect
 from .pipeline import mainPrimeCompletoInsanoKaiokenSsj5
 from django.contrib.auth.decorators import login_required 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 @login_required
 def clasificacion(request):
