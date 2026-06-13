@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'appAdministracionUsuarios',
     'appClasificacionResiduos',
     'appReportes',
+    'usuarios',
 ]
 
 MIDDLEWARE = [
@@ -121,9 +122,9 @@ STATICFILES_DIRS = [
     BASE_DIR / "imagenes",
 ]
 
-MEDIA_URL = '/imagenes/'
-MEDIA_ROOT = BASE_DIR / 'imagenes'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'inicio'
+LOGIN_REDIRECT_URL = 'perfil'
 LOGOUT_REDIRECT_URL = 'inicio'

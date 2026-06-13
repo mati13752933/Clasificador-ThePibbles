@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+
+<section class="min-h-screen w-full flex flex-col items-center px-8 py-10 gap-10">
+
+    <!-- Encabezado -->
+    <div class="w-full max-w-[1100px] flex flex-col items-center text-center gap-4">
+        <h1 class="text-[48px] font-bold text-black">
+            Perfil del Usuario
+        </h1>
+
+        <p class="text-gray-500 text-lg">
+            Revisa tu actividad dentro de The Pibbles y continúa clasificando residuos.
+        </p>
+    </div>
+
+    <!-- Bloque de perfil -->
+    <div class="w-full max-w-[900px] bg-white rounded-3xl shadow-[0_10px_60px_rgb(204,251,241)] p-8 flex flex-col items-center gap-6">
+
+        <img src="{{ user.perfil.foto.url }}"
+             alt="Foto de perfil"
+             class="w-[130px] h-[130px] rounded-full object-cover shadow-lg">
+
+        <div class="flex flex-col items-center gap-2">
+            <h2 class="text-4xl font-bold text-black">
+                {{ user.username }}
+            </h2>
+
+            <p class="text-gray-500">
+                Usuario activo de The Pibbles
+            </p>
+        </div>
+
+        <a href="{% url 'editar_perfil' %}"
+           class="inline-block bg-black text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 active:scale-95 hover:ring-2 hover:ring-black hover:ring-offset-4">
+            Editar perfil
+        </a>
+
+    </div>
+
+    <!-- Tarjetas estadísticas -->
+    <div class="w-full max-w-[1000px] grid grid-cols-1 md:grid-cols-2 gap-8">
+
+        <!-- Tarjeta 1 verde -->
+        <div class="group relative w-full h-[220px] bg-teal-500 rounded-3xl flex items-center justify-center overflow-hidden transition-all duration-500 ease-out hover:-rotate-2 hover:scale-[1.03] hover:shadow-2xl">
+            
+            <div class="transition-all duration-500 ease-out group-hover:scale-0 group-hover:-rotate-45">
+                <h2 class="text-white text-2xl font-bold text-center px-8">
+                    Residuos Clasificados
+                </h2>
+            </div>
+
+            <div class="absolute top-1/2 left-1/2 w-full h-full bg-white p-8 flex flex-col items-center justify-center opacity-0 -translate-x-1/2 -translate-y-1/2 -rotate-45 transition-all duration-500 ease-out group-hover:opacity-100 group-hover:rotate-0">
+                <p class="text-teal-600 text-[70px] font-bold leading-none">
+                    {{ user.perfil.residuos_clasificados }}
+                </p>
+
+                <p class="text-black text-xl font-semibold mt-4 text-center">
+                    residuos clasificados
+                </p>
+            </div>
+        </div>
+
+        <!-- Tarjeta 2 blanca -->
+        <div class="group relative w-full h-[220px] bg-white rounded-3xl flex items-center justify-center overflow-hidden shadow-lg transition-all duration-500 ease-out hover:rotate-2 hover:scale-[1.03] hover:shadow-2xl">
+            
+            <div class="transition-all duration-500 ease-out group-hover:scale-0 group-hover:-rotate-45">
+                <h2 class="text-teal-600 text-2xl font-bold text-center px-8">
+                    Reportes Generados
+                </h2>
+            </div>
+
+            <div class="absolute top-1/2 left-1/2 w-full h-full bg-teal-500 p-8 flex flex-col items-center justify-center opacity-0 -translate-x-1/2 -translate-y-1/2 -rotate-45 transition-all duration-500 ease-out group-hover:opacity-100 group-hover:rotate-0">
+                <p class="text-white text-[55px] font-bold leading-none">
+                    {{ user.perfil.residuos_clasificados }}
+                </p>
+
+                <p class="text-white text-lg font-semibold mt-4 text-center">
+                    registros disponibles para consultar
+                </p>
+            </div>
+        </div>
+
+        <div class="group relative w-full h-[220px] bg-white rounded-3xl flex items-center justify-center overflow-hidden shadow-lg transition-all duration-500 ease-out hover:-rotate-2 hover:scale-[1.03] hover:shadow-2xl">
+            
+            <div class="transition-all duration-500 ease-out group-hover:scale-0 group-hover:-rotate-45">
+                <h2 class="text-teal-600 text-2xl font-bold text-center px-8">
+                    abre para una sorpresa
+                </h2>
+            </div>
+
+            <div class="absolute top-1/2 left-1/2 w-full h-full bg-teal-500 p-8 flex flex-col items-center justify-center opacity-0 -translate-x-1/2 -translate-y-1/2 -rotate-45 transition-all duration-500 ease-out group-hover:opacity-100 group-hover:rotate-0">
+                <p class="text-white text-3xl font-bold text-center">
+                    una animacion nos muestra que el siguiente integrante de digital circus
+                </p>
+
+                <p class="text-white text-base mt-4 text-center">
+                    sera un chico que se parece mucho a pomni
+                </p>
+            </div>
+        </div>
+
+        <div class="group relative w-full h-[220px] bg-teal-500 rounded-3xl flex items-center justify-center overflow-hidden transition-all duration-500 ease-out hover:rotate-2 hover:scale-[1.03] hover:shadow-2xl">
+            
+            <div class="transition-all duration-500 ease-out group-hover:scale-0 group-hover:-rotate-45">
+                <h2 class="text-white text-2xl font-bold text-center px-8">
+                    chica hello kitty o femboy gotico
+                </h2>
+            </div>
+
+            <div class="absolute top-1/2 left-1/2 w-full h-full bg-white p-8 flex flex-col items-center justify-center opacity-0 -translate-x-1/2 -translate-y-1/2 -rotate-45 transition-all duration-500 ease-out group-hover:opacity-100 group-hover:rotate-0">
+                <p class="text-teal-600 text-4xl font-bold text-center">
+                    LEo pon algo auqi se creativo
+                </p>
+
+                <p class="text-black text-base font-semibold mt-4 text-center">
+                    decisiones decisiones
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="w-full max-w-[900px] flex flex-col items-center gap-5 mt-4">
+
+        {% if user.perfil.residuos_clasificados == 0 %}
+            <p class="text-gray-600 text-lg text-center">
+                Todavía no clasificaste ningún residuo. Empieza ahora para generar tu historial.
+            </p>
+
+            <a href="{% url 'clasificacion' %}"
+               class="inline-block bg-teal-500 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 active:scale-95 hover:ring-2 hover:ring-teal-500 hover:ring-offset-4">
+                Empezar a clasificar residuos
+            </a>
+        {% else %}
+            <p class="text-gray-600 text-lg text-center">
+                Ya tienes actividad registrada. Puedes seguir clasificando o revisar tus reportes.
+            </p>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <a href="{% url 'clasificacion' %}"
+                   class="inline-block bg-teal-500 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 active:scale-95 hover:ring-2 hover:ring-teal-500 hover:ring-offset-4">
+                    Clasificar más residuos
+                </a>
+
+                <a href="{% url 'reportes' %}"
+                   class="inline-block bg-white text-black px-8 py-3 rounded-xl font-semibold shadow-md transition-all duration-200 active:scale-95 hover:ring-2 hover:ring-black hover:ring-offset-4">
+                    Ver reportes
+                </a>
+            </div>
+        {% endif %}
+
+    </div>
+
+</section>
+
+{% endblock %}

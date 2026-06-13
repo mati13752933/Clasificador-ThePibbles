@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+
+<section class="min-h-screen w-full flex justify-center items-center px-6 py-10">
+
+    <div class="w-full max-w-[900px] bg-white p-8">
+
+        <h1 class="text-[50px] font-bold text-center text-black mb-4">
+            Editar perfil
+        </h1>
+
+        <p class="text-xl text-gray-600 text-center mb-10">
+            Actualiza tu foto, nombre de usuario o contraseña.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+            <!-- Editar datos -->
+            <form method="POST" enctype="multipart/form-data"
+                  class="border border-teal-300 rounded-2xl p-6 flex flex-col gap-5">
+                
+                {% csrf_token %}
+
+                <h2 class="text-3xl font-bold text-black mb-2">
+                    Datos del perfil
+                </h2>
+
+                <div class="flex justify-center">
+                    <img src="{{ user.perfil.foto.url }}"
+                         alt="Foto de perfil"
+                         class="h-[180px] w-[180px] rounded-full object-cover border-4 border-teal-500 shadow-lg">
+                </div>
+
+                <div>
+                    <label class="block mb-2 font-semibold text-black">
+                        Nombre de usuario
+                    </label>
+                    {{ user_form.username }}
+                </div>
+
+                <div>
+                    <label class="block mb-2 font-semibold text-black">
+                        Foto de perfil
+                    </label>
+                    {{ perfil_form.foto }}
+                </div>
+
+                {% if user_form.errors or perfil_form.errors %}
+                    <div class="text-red-500 text-sm font-semibold">
+                        {{ user_form.errors }}
+                        {{ perfil_form.errors }}
+                    </div>
+                {% endif %}
+
+                <button type="submit"
+                        name="guardar_perfil"
+                        class="w-full bg-teal-500 text-white py-3 rounded-xl font-semibold transition-all duration-200 active:scale-95 hover:ring-2 hover:ring-teal-500 hover:ring-offset-4">
+                    Guardar cambios
+                </button>
+            </form>
+
+            <!-- Cambiar contraseña -->
+            <form method="POST"
+                  class="border border-teal-300 rounded-2xl p-6 flex flex-col gap-5">
+                
+                {% csrf_token %}
+
+                <h2 class="text-3xl font-bold text-black mb-2">
+                    Cambiar contraseña
+                </h2>
+
+                <div>
+                    <label class="block mb-2 font-semibold text-black">
+                        Contraseña actual
+                    </label>
+                    {{ password_form.old_password }}
+                </div>
+
+                <div>
+                    <label class="block mb-2 font-semibold text-black">
+                        Nueva contraseña
+                    </label>
+                    {{ password_form.new_password1 }}
+                </div>
+
+                <div>
+                    <label class="block mb-2 font-semibold text-black">
+                        Confirmar nueva contraseña
+                    </label>
+                    {{ password_form.new_password2 }}
+                </div>
+
+                {% if password_form.errors %}
+                    <div class="text-red-500 text-sm font-semibold">
+                        {{ password_form.errors }}
+                    </div>
+                {% endif %}
+
+                <button type="submit"
+                        name="cambiar_password"
+                        class="w-full bg-white text-teal-500 border border-teal-500 py-3 rounded-xl font-semibold transition-all duration-200 active:scale-95 hover:ring-2 hover:ring-teal-500 hover:ring-offset-4">
+                    Cambiar contraseña
+                </button>
+            </form>
+
+        </div>
+
+        <div class="text-center mt-8">
+            <a href="{% url 'perfil' %}"
+               class="inline-block text-teal-500 font-bold underline underline-offset-4 hover:text-teal-700">
+                Volver a mi perfil
+            </a>
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

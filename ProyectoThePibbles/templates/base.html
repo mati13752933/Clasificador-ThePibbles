@@ -39,6 +39,9 @@
     
         <div class="justify-self-end flex items-center gap-6">
             {%if user.is_authenticated %}
+             <a href="{% url 'perfil' %}" class="transition-all duration-200 hover:text-teal-500 hover:scale-110 inline-block">
+                    Perfil
+                </a>
             <form method="POST" action="{% url 'logout' %}">
                 {% csrf_token %}
                 <button class="inline-block bg-teal-500 text-white px-6 py-2 rounded-lg font-normal transition-all duration-200 active:scale-95 hover:ring-2 hover:ring-teal-500 hover:ring-offset-4">
