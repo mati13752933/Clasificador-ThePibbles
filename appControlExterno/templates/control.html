@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+
+<section class="min-h-screen flex flex-col justify-center items-center gap-6 px-8 py-10">
+
+    <h1 class="text-[60px] font-bold text-black">
+        Control por Voz
+    </h1>
+
+    <p class="text-xl text-gray-500 text-center">
+        Activa la escucha continua y luego ejecuta los comandos detectados.
+    </p>
+
+    <div class="flex gap-6">
+        {%if escuchando%}
+        <a href="{% url 'detener_voz' %}"
+           class="bg-black text-white px-8 py-3 rounded-xl font-semibold active:scale-95 hover:ring-2 hover:ring-black hover:ring-offset-4 transition-all">
+            Detener escucha
+        </a>
+        {% else %}
+        <a href="{% url 'iniciar_voz' %}"
+           class="bg-teal-500 text-white px-8 py-3 rounded-xl font-semibold active:scale-95 hover:ring-2 hover:ring-teal-500 hover:ring-offset-4 transition-all">
+            Iniciar escucha
+        </a>
+        {% endif %}
+    </div>
+    <div id="estado-voz"
+         class="w-full max-w-[650px] bg-white rounded-3xl shadow-[0_10px_60px_rgb(204,251,241)] p-6 text-center">
+        <h2 class="text-2xl font-bold text-black mb-3">
+            Estado
+        </h2>
+
+        {% if escuchando %}
+            <p class="text-teal-600 text-lg font-semibold">
+                Escuchando comandos...
+            </p>
+        {% else %}
+            <p class="text-gray-500 text-lg font-semibold">
+                La escucha está detenida.
+            </p>
+        {% endif %}
+
+        <p id="texto-detectado" class="text-black text-lg mt-4"></p>
+        <p id="mensaje-comando" class="text-gray-600 text-base mt-2"></p>
+    </div>
+</section>
+
+{% endblock %}
