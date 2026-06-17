@@ -20,8 +20,8 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/admin/" class="transition-all duration-200 hover:text-teal-500 hover:scale-110 inline-block">
-                        Administracion
+                    <a href="/control/" class="transition-all duration-200 hover:text-teal-500 hover:scale-110 inline-block">
+                        Control
                     </a>
                 </li>
                 <li>
@@ -64,6 +64,106 @@
         {% block contenido %}
         {% endblock %}
     </main>
+   {% if user.is_authenticated %}
+    <script>
+        let procesandoComando = false;
+
+        async function pausarVoz() {
+            try {
+                await fetch("{% url 'pausar_voz' %}");
+            } catch (error) {
+                console.log("No se pudo pausar la voz:", error);
+            }
+        }
+
+        async function reanudarVoz() {
+            try {
+                await fetch("{% url 'reanudar_voz' %}");
+            } catch (error) {
+                console.log("No se pudo reanudar la voz:", error);
+            }
+        }
+
+        function reproducirAudio(texto) {
+            return new Promise((resolve) => {
+                const url = "{% url 'hablar_mensaje' %}" + "?texto=" + encodeURIComponent(texto);
+                const audio = new Audio(url);
+
+                audio.onended = resolve;
+                audio.onerror = resolve;
+
+                audio.play().catch((error) => {
+                    console.log("No se pudo reproducir el audio:", error);
+                    resolve();
+                });
+            });
+        }
+
+        async function hablarMensaje(texto) {
+            try {
+                await pausarVoz();
+                await reproducirAudio(texto);
+            } finally {
+                await reanudarVoz();
+            }
+        }
+
+        async function consultarComandoGlobal() {
+            if (procesandoComando) {
+                return;
+            }
+
+            procesandoComando = true;
+
+            try {
+                const respuesta = await fetch("{% url 'ejecutar_comando_voz' %}");
+
+                if (!respuesta.ok) {
+                    procesandoComando = false;
+                    return;
+                }
+
+                const data = await respuesta.json();
+
+                if (!data.hay_comando) {
+                    procesandoComando = false;
+                    return;
+                }
+
+                console.log("Comando global recibido:", data);
+
+                const resultado = data.resultado;
+
+                console.log("Resultado:", resultado);
+                console.log("Acción:", resultado.accion);
+                console.log("Ruta:", resultado.ruta);
+
+                if (resultado.mensaje) {
+                    await hablarMensaje(resultado.mensaje);
+                }
+
+                if (resultado.ok === true && resultado.accion === "redirigir") {
+                    window.location.href = resultado.ruta;
+                    return;
+                }
+
+                if (resultado.ok === true && resultado.accion === "abrir_selector_imagen") {
+                    window.location.href = resultado.ruta;
+                    return;
+                }
+
+                procesandoComando = false;
+
+            } catch (error) {
+                console.error("Error consultando comando global:", error);
+                procesandoComando = false;
+            }
+        }
+
+        setInterval(consultarComandoGlobal, 1000);
+    </script>
+    {% endif %}
 </body>
+
 </html>
     

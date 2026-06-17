@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'appClasificacionResiduos',
     'appReportes',
     'usuarios',
+    'appControlExterno',
 ]
 
 MIDDLEWARE = [

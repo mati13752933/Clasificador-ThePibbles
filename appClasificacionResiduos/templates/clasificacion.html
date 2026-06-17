@@ -72,4 +72,22 @@
             console.log("FORMULARIO ENVIÁNDOSE");
         });
     </script>
+    <script>
+    window.addEventListener("DOMContentLoaded", function () {
+        const params = new URLSearchParams(window.location.search);
+        const accion = params.get("accion");
+
+        if (accion === "subir_imagen") {
+            const inputImagen = document.getElementById("file-input");
+
+            if (inputImagen) {
+                setTimeout(() => {
+                    inputImagen.click();
+                }, 500);
+            } else {
+                console.log("No se encontró el input con id='file-input'");
+            }
+        }
+    });
+</script>
 {% endblock %}
