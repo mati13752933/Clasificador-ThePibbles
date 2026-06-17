@@ -13,19 +13,33 @@ class ServicioVoz:
         self.voz = Voz()
         self.cola = PriorityQueue()
         self.escuchando = False
+        self.pausado = False
         self.hilo = None
 
     def iniciar(self):
         if not self.escuchando:
             self.escuchando = True
+            self.pausado = False
             self.hilo = threading.Thread(target=self._escuchar_siempre, daemon=True)
             self.hilo.start()
 
     def detener(self):
         self.escuchando = False
+        self.pausado = False
+    
+    def pausar(self):
+        self.pausado = True
+    
+    def reanudar(self):
+        if self.escuchando:
+            self.pausado = False
 
     def _escuchar_siempre(self):
         while self.escuchando:
+            if self.pausado:
+                time.sleep(0.2)
+                continue
+
             texto = self.audio.escuchar()
 
             if texto:

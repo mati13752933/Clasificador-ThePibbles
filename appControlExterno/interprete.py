@@ -5,14 +5,14 @@ CONECTORES = [" y ", " luego ", " despues ", " después ", " tambien ", " tambi�
 VERBOS = {
     "ir": [
         "ir", "ve", "anda", "dirigete", "dirígete", "llevarme",
-        "navegar", "entrar", "acceder", "abrir", "abre", "mostrar", "muestra", "entra"
+        "navegar", "entrar", "acceder", "abrir", "abre", "mostrar", "muestra", "entra", "volver", "vuelve"
     ],
     "clasificar": [
         "clasificar", "analizar", "procesar", "evaluar", "revisar",
         "identificar", "detectar"
     ],
     "cargar": [
-        "subir", "cargar", "adjuntar", "seleccionar", "elegir"
+        "subir", "cargar", "adjuntar", "seleccionar", "elegir", "elige", "carga", "adjunta"
     ],
     "ayuda": [
         "ayuda", "ayudame", "ayúdame", "instrucciones", "explica"
@@ -20,7 +20,16 @@ VERBOS = {
 
     "detener" : [
         "detener", "para", "parar", "detente", "alto", "stop"
+    ],
+
+    "editar" : [
+        "editar", "cambiar", "personalizar"
+    ],
+
+    "cerrar": [
+        "cerrar", "close", "terminar", "acabar", "cierra", "termina", "terminando", "acaba", "sal", "salir"
     ]
+
 }
 
 
@@ -45,6 +54,14 @@ OBJETOS = {
     ],
     "camara" : [
         "cámara", "video"
+    ],
+
+    "control" : [
+        "control", "voz", "controlador", "comandos"
+    ],
+
+    "sesion": [
+        "sesion", "cuenta"
     ]
 }
 
@@ -103,6 +120,7 @@ def interpretar_comando(texto):
     verbo = buscar_grupo(texto_limpio, VERBOS)
     objeto = buscar_grupo(texto_limpio, OBJETOS)
 
+    print("ANTES DE IF CONTROL:", verbo, objeto)
     if verbo == "ayuda":
         return {
             "ok": True,
@@ -156,6 +174,14 @@ def interpretar_comando(texto):
             "ruta": "/reportes/",
             "mensaje": "Abriendo reportes."
         }
+    
+    if verbo == "ir" and objeto == "control":
+        return {
+            "ok": True,
+            "accion": "redirigir",
+            "ruta": "/control/",
+            "mensaje": "Abriendo control."
+        }
 
     if verbo == "ir" and objeto == "perfil":
         return {
@@ -163,6 +189,14 @@ def interpretar_comando(texto):
             "accion": "redirigir",
             "ruta": "/perfil/",
             "mensaje": "Abriendo perfil."
+        }
+    
+    if verbo == "editar" and objeto == "perfil":
+        return {
+            "ok": True,
+            "accion": "redirigir",
+            "ruta": "/perfil/editar/",
+            "mensaje": "Abriendo opcion para editar perfil."
         }
 
     if verbo in ["ir", "cargar"] and objeto == "imagen":
@@ -172,6 +206,15 @@ def interpretar_comando(texto):
             "ruta": "/clasificacion/?accion=subir_imagen",
             "mensaje": "Abriendo selector de imagen."
         }
+    
+        
+    if verbo == "cerrar" and objeto == "sesion":
+        return {
+            "ok": True,
+            "accion": "redirigir",
+            "ruta": "/control/cerrar-sesion-voz/",
+            "mensaje": "Cerrando sesión."
+        } 
         
     return {
         "ok": False,

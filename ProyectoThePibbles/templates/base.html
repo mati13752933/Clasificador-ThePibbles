@@ -64,47 +64,104 @@
         {% block contenido %}
         {% endblock %}
     </main>
-    {% if user.is_authenticated %}
-        <script>
-            async function consultarComandoGlobal() {
-                try {
-                    const respuesta = await fetch("{% url 'ejecutar_comando_voz' %}");
+   {% if user.is_authenticated %}
+    <script>
+        let procesandoComando = false;
 
-                    if (!respuesta.ok) {
-                        return;
-                    }
+        async function pausarVoz() {
+            try {
+                await fetch("{% url 'pausar_voz' %}");
+            } catch (error) {
+                console.log("No se pudo pausar la voz:", error);
+            }
+        }
 
-                    const data = await respuesta.json();
+        async function reanudarVoz() {
+            try {
+                await fetch("{% url 'reanudar_voz' %}");
+            } catch (error) {
+                console.log("No se pudo reanudar la voz:", error);
+            }
+        }
 
-                    if (!data.hay_comando) {
-                        return;
-                    }
+        function reproducirAudio(texto) {
+            return new Promise((resolve) => {
+                const url = "{% url 'hablar_mensaje' %}" + "?texto=" + encodeURIComponent(texto);
+                const audio = new Audio(url);
 
-                    console.log("Comando global recibido:", data);
+                audio.onended = resolve;
+                audio.onerror = resolve;
 
-                    const resultado = data.resultado;
+                audio.play().catch((error) => {
+                    console.log("No se pudo reproducir el audio:", error);
+                    resolve();
+                });
+            });
+        }
 
-                    if (resultado.mensaje) {
-                        console.log("Mensaje:", resultado.mensaje);
-                    }
+        async function hablarMensaje(texto) {
+            try {
+                await pausarVoz();
+                await reproducirAudio(texto);
+            } finally {
+                await reanudarVoz();
+            }
+        }
 
-                    if (resultado.ok === true && resultado.accion === "redirigir") {
-                        window.location.href = resultado.ruta;
-                        return;
-                    }
-
-                    if (resultado.ok === true && resultado.accion === "abrir_selector_imagen") {
-                        window.location.href = "/clasificacion/?accion=subir_imagen";
-                        return;
-                    }
-
-                } catch (error) {
-                    console.error("Error consultando comando global:", error);
-                }
+        async function consultarComandoGlobal() {
+            if (procesandoComando) {
+                return;
             }
 
-            setInterval(consultarComandoGlobal, 1000);
-        </script>
+            procesandoComando = true;
+
+            try {
+                const respuesta = await fetch("{% url 'ejecutar_comando_voz' %}");
+
+                if (!respuesta.ok) {
+                    procesandoComando = false;
+                    return;
+                }
+
+                const data = await respuesta.json();
+
+                if (!data.hay_comando) {
+                    procesandoComando = false;
+                    return;
+                }
+
+                console.log("Comando global recibido:", data);
+
+                const resultado = data.resultado;
+
+                console.log("Resultado:", resultado);
+                console.log("Acción:", resultado.accion);
+                console.log("Ruta:", resultado.ruta);
+
+                if (resultado.mensaje) {
+                    await hablarMensaje(resultado.mensaje);
+                }
+
+                if (resultado.ok === true && resultado.accion === "redirigir") {
+                    window.location.href = resultado.ruta;
+                    return;
+                }
+
+                if (resultado.ok === true && resultado.accion === "abrir_selector_imagen") {
+                    window.location.href = resultado.ruta;
+                    return;
+                }
+
+                procesandoComando = false;
+
+            } catch (error) {
+                console.error("Error consultando comando global:", error);
+                procesandoComando = false;
+            }
+        }
+
+        setInterval(consultarComandoGlobal, 1000);
+    </script>
     {% endif %}
 </body>
 
