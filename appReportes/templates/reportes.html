@@ -1,7 +1,66 @@
 {% extends 'base.html' %}
-{%block contenido%}
-<section class="flex justify-center">
-    <img src="https://pbs.twimg.com/media/HKp6YSIaoAAD9r2.jpg" alt="que cosita ves" width="1000" height="1000"
-class="p-10">
+{% block contenido %}
+<section class="flex flex-col items-center p-10 gap-6 min-h-screen">
+    <img src="https://www.tadaima.com.mx/wp-content/uploads/2019/07/asunyan-1280x500.jpg" alt="que cosita ves" width="1000" class="rounded-lg shadow-md">
+
+    <div class="w-full max-w-5xl overflow-x-auto shadow-md sm:rounded-lg">
+        <table class="w-full text-sm text-left text-gray-500">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                <tr>
+                    <th scope="col" class="px-6 py-3">Clasificación</th>
+                    <th scope="col" class="px-6 py-3">Objeto</th>
+                    <th scope="col" class="px-6 py-3">Cantidad</th>
+                    <th scope="col" class="px-6 py-3">Ingreso</th>
+                    <th scope="col" class="px-6 py-3">Egreso</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-cuerpo">
+                <tr class="bg-white border-b hover:bg-gray-50">
+                    <td class="px-6 py-4"><input type="text" placeholder="Ej. Plástico" class="border p-1 rounded w-full text-gray-900 font-medium"></td>
+                    <td class="px-6 py-4"><input type="text" placeholder="Ej. Botella PET" class="border p-1 rounded w-full"></td>
+                    <td class="px-6 py-4"><input type="number" placeholder="0" class="border p-1 rounded w-full"></td>
+                    <td class="px-6 py-4"><input type="number" step="0.1" placeholder="Bs 0.00" class="border p-1 rounded w-full text-green-600 font-semibold"></td>
+                    <td class="px-6 py-4"><input type="number" step="0.1" placeholder="Bs 0.00" class="border p-1 rounded w-full text-red-600 font-semibold"></td>
+                </tr>
+                <tr class="bg-white border-b hover:bg-gray-50">
+                    <td class="px-6 py-4"><input type="text" placeholder="Ej. Papel" class="border p-1 rounded w-full text-gray-900 font-medium"></td>
+                    <td class="px-6 py-4"><input type="text" placeholder="Ej. Revistas" class="border p-1 rounded w-full"></td>
+                    <td class="px-6 py-4"><input type="number" placeholder="0" class="border p-1 rounded w-full"></td>
+                    <td class="px-6 py-4"><input type="number" step="0.1" placeholder="Bs 0.00" class="border p-1 rounded w-full text-green-600 font-semibold"></td>
+                    <td class="px-6 py-4"><input type="number" step="0.1" placeholder="Bs 0.00" class="border p-1 rounded w-full text-red-600 font-semibold"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <button id="btn-agregar" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow transition duration-200">
+        + Agregar Fila
+    </button>
+
+    <div class="w-full max-w-5xl flex justify-between items-center mt-8">
+        <a href="URL_DE_REDIRECCION_1">
+            <img src="https://static.wikia.nocookie.net/memes-pedia/images/d/df/Nada.png/revision/latest?cb=20201119214705&path-prefix=es" alt="Imagen Izquierda" width="450" class="rounded-lg shadow-lg hover:scale-105 transition-transform">
+        </a>
+        
+        <a href="URL_DE_REDIRECCION_2">
+            <img src="https://i.imgflip.com/3cya6l.jpg" alt="Imagen Derecha" width="500" class="rounded-lg shadow-lg hover:scale-105 transition-transform">
+        </a>
+    </div>
 </section>
-{%endblock%}
+
+<script>
+    document.getElementById('btn-agregar').addEventListener('click', function() {
+        const tbody = document.getElementById('tabla-cuerpo');
+        const nuevaFila = document.createElement('tr');
+        nuevaFila.className = "bg-white border-b hover:bg-gray-50";
+        nuevaFila.innerHTML = `
+            <td class="px-6 py-4"><input type="text" placeholder="Clasificación" class="border p-1 rounded w-full text-gray-900 font-medium"></td>
+            <td class="px-6 py-4"><input type="text" placeholder="Objeto" class="border p-1 rounded w-full"></td>
+            <td class="px-6 py-4"><input type="number" placeholder="0" class="border p-1 rounded w-full"></td>
+            <td class="px-6 py-4"><input type="number" step="0.1" placeholder="Bs 0.00" class="border p-1 rounded w-full text-green-600 font-semibold"></td>
+            <td class="px-6 py-4"><input type="number" step="0.1" placeholder="Bs 0.00" class="border p-1 rounded w-full text-red-600 font-semibold"></td>
+        `;
+        tbody.appendChild(nuevaFila);
+    });
+</script>
+{% endblock %}
