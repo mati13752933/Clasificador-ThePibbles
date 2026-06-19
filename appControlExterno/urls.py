@@ -14,4 +14,5 @@ urlpatterns = [
     path("click-subir-imagen/", views.click_subir_imagen, name="click_subir_imagen"),
     path("pausar-voz/", views.pausar_voz, name="pausar_voz"),
     path("reanudar-voz/", views.reanudar_voz, name="reanudar_voz"),
+    path("ejecutar_comando_camara/", views.ejecutar_comando_camara, name="ejecutar_comando_camara"),
 ]

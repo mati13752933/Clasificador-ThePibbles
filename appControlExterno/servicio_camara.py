@@ -1,53 +1,54 @@
 import threading
+import time
 import cv2
-import os
-from .funciones_camara import procesarGestoCamara
-from appClasificacionResiduos.pipeline import analizarImagen
+from queue import Queue
+from .funciones_camara import detectar_gesto
+
 
 class ServicioCamara:
     def __init__(self):
         self.camara_activa = False
         self.hilo = None
+        self.cola = Queue()
+        self._ultimo_gesto = None
+        self._tiempo_ultimo = 0
 
     def iniciar(self):
         if not self.camara_activa:
             self.camara_activa = True
-            self.hilo = threading.Thread(target=self._iniciar_camara, daemon=True)
+            self.cola = Queue()
+            self._ultimo_gesto = None
+            self._tiempo_ultimo = 0
+            self.hilo = threading.Thread(target=self._loop_camara, daemon=True)
             self.hilo.start()
 
     def detener(self):
         self.camara_activa = False
+        self._ultimo_gesto = None
+        self._tiempo_ultimo = 0
+        # Vacía la cola
+        while not self.cola.empty():
+            self.cola.get()
 
-    def _iniciar_camara(self):
-        baseDir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        carpetaImagenes = os.path.join(baseDir, "imagenes")
+    def obtener_siguiente_gesto(self):
+        if self.cola.empty():
+            return None
+        gesto = self.cola.get()
+        # Resetea para permitir el mismo gesto en la próxima página
+        self._ultimo_gesto = None
+        return gesto
 
-        archivosGestos = {
-            "derecha": "derecha.jpg",
-            "izquierda": "izquierda.jpg",
-            "arriba": "arriba.jpg",
-            "abajo": "abajo.jpg",
-            "palma": "circulo.jpg"
-        }
-
-        datos_plantillas = []
-
-        for tipoGesto, nombreArchivo in archivosGestos.items():
-            ruta = os.path.join(carpetaImagenes, nombreArchivo)
-
-            if os.path.exists(ruta):
-                analisis = analizarImagen(ruta)
-
-                if analisis:
-                    infoGesto = analisis[0]
-                    infoGesto["tipoReferencia"] = tipoGesto
-                    datos_plantillas.append(infoGesto)
-
+    def _loop_camara(self):
         cap = cv2.VideoCapture(0)
 
         if not cap.isOpened():
             self.camara_activa = False
             return
+
+        COOLDOWN = 2.0  # segundos entre gestos
+        gesto_estable = None
+        tiempo_estable = None
+        TIEMPO_PARA_CONFIRMAR = 0.6  # el gesto debe mantenerse 0.6s para confirmarse
 
         while cap.isOpened() and self.camara_activa:
             ret, frame = cap.read()
@@ -56,25 +57,32 @@ class ServicioCamara:
                 break
 
             frame = cv2.flip(frame, 1)
-            resultadosCamara = analizarImagen(frame)
+            gesto, frame_anotado = detectar_gesto(frame)
+            ahora = time.time()
 
-            if resultadosCamara:
-                resultadoGesto = procesarGestoCamara(resultadosCamara, datos_plantillas)
+            if gesto:
+                # Si es un gesto nuevo, empezamos a cronometrar
+                if gesto != gesto_estable:
+                    gesto_estable = gesto
+                    tiempo_estable = ahora
+                else:
+                    # Si lleva suficiente tiempo estable, lo encolamos
+                    tiempo_sostenido = ahora - tiempo_estable
+                    tiempo_desde_ultimo = ahora - self._tiempo_ultimo
 
-                if resultadoGesto:
-                    gesto, porcentaje = resultadoGesto
-                    infoTexto = f"Gesto: {gesto.upper()} ({porcentaje}%)"
-                    cv2.putText(
-                        frame,
-                        infoTexto,
-                        (30, 50),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        1,
-                        (0, 255, 0),
-                        2
-                    )
+                    if tiempo_sostenido >= TIEMPO_PARA_CONFIRMAR and tiempo_desde_ultimo >= COOLDOWN:
+                        self._ultimo_gesto = gesto
+                        self._tiempo_ultimo = ahora
+                        gesto_estable = None  # resetea para no repetir
+                        tiempo_estable = None
+                        self.cola.put(gesto)
+                        print(f"[Cámara] Gesto confirmado: {gesto}")
+            else:
+                # Si no hay gesto, resetea el contador de estabilidad
+                gesto_estable = None
+                tiempo_estable = None
 
-            cv2.imshow("Feed de la Camara - Proyecto The Pibbles", frame)
+            cv2.imshow("Control por cámara - The Pibbles", frame_anotado)
 
             if cv2.waitKey(1) & 0xFF == ord('s'):
                 self.camara_activa = False
@@ -83,5 +91,3 @@ class ServicioCamara:
         cap.release()
         cv2.destroyAllWindows()
         self.camara_activa = False
-
-
