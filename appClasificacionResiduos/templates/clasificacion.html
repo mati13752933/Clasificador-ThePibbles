@@ -13,7 +13,7 @@
                 Selecciona una imagen del residuo para clasificarla.
             </p>
 
-            <label id = "boton_seleccionar" for="file-input"
+            <label id="boton_seleccionar" for="file-input"
                 class="bg-white relative flex gap-[10px] flex-col justify-center items-center p-[10px] mt-[2.1875rem] rounded-[10px] border-2 border-dashed border-teal-300 text-gray-700 cursor-pointer transition-all duration-200 hover:bg-teal-100 hover:border-gray-700">
                 
                 <span class="text-gray-700 text-[20px] font-bold text-center transition-colors duration-200">
@@ -31,29 +31,142 @@
                     class="w-[350px] max-w-full text-gray-700 p-[2px] bg-white rounded-[10px] border border-black/30
                             file:mr-5 file:border-0 file:bg-teal-500 file:px-5 file:py-[10px] file:rounded-[10px] file:text-white file:cursor-pointer file:transition-colors file:duration-200
                             hover:file:bg-teal-700">
-                
             </label>
-             <div id="preview-container" class="hidden mt-6">
-                <p class="text-sm text-gray-500 mb-2">Vista previa:</p>
 
+            <div id="preview-container" class="hidden mt-6">
+                <p class="text-sm text-gray-500 mb-2">Vista previa:</p>
                 <img id="preview-img"
                     src=""
                     alt="Vista previa"
                     class="w-full max-h-[100px] object-contain shadow-md">
             </div>
-            <button id = "boton_clasificar" type="submit"
-                onclick="console.log('BOTON CLICKEADO')"
-                    class="mt-6 bg-teal-500 text-white px-6 py-2 rounded-lg font-normal transition-all duration-200 active:scale-95 hover:ring-2 hover:ring-teal-500 hover:ring-offset-4">
-                Clasificar
-            </button>
+
+            <div class="flex gap-3 justify-center mt-6">
+                <button id="boton_clasificar" type="submit"
+                    onclick="console.log('BOTON CLICKEADO')"
+                    class="bg-teal-500 text-white px-6 py-2 rounded-lg font-normal transition-all duration-200 active:scale-95 hover:ring-2 hover:ring-teal-500 hover:ring-offset-4">
+                    Clasificar
+                </button>
+
+                <button id="boton_usar_camara" type="button"
+                    onclick="abrirModalCamara()"
+                    class="bg-white border border-teal-500 text-teal-500 px-6 py-2 rounded-lg font-normal transition-all duration-200 active:scale-95 hover:bg-teal-50 hover:ring-2 hover:ring-teal-500 hover:ring-offset-4
+                           disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none">
+                    Usar cámara
+                </button>
+            </div>
         </form>
     </section>
-   <script>
+
+    <div id="modal-camara" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col items-center gap-4 max-w-[480px] w-full mx-4">
+
+            <div class="flex items-center justify-between w-full">
+                <h3 class="text-xl font-semibold text-gray-800">Clasificar por cámara</h3>
+                <button onclick="cerrarModalCamara()"
+                    class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <p class="text-sm text-gray-500 text-center">
+                Apuntá la cámara al residuo y presioná <span class="font-semibold text-teal-500">Capturar</span> para clasificarlo.
+            </p>
+
+            <video id="video-camara" autoplay playsinline muted
+                class="w-full rounded-xl bg-black"></video>
+
+            <button onclick="capturarYClasificar()"
+                class="w-full bg-teal-500 text-white px-6 py-2 rounded-lg font-normal transition-all duration-200 active:scale-95 hover:ring-2 hover:ring-teal-500 hover:ring-offset-4">
+                Capturar y clasificar
+            </button>
+
+            <button onclick="cerrarModalCamara()"
+                class="w-full border border-gray-300 text-gray-600 px-6 py-2 rounded-lg font-normal transition-all duration-200 hover:bg-gray-50 active:scale-95">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
+    <canvas id="canvas-captura" class="hidden"></canvas>
+
+    <script>
     const inputImagen = document.getElementById("file-input");
     const previewContainer = document.getElementById("preview-container");
     const previewImg = document.getElementById("preview-img");
 
     let modoAsistido = false;
+    let streamCamara = null;
+
+    async function actualizarBotonUsarCamara() {
+        try {
+            const resp = await fetch("{% url 'estado_camara' %}");
+            const data = await resp.json();
+            const boton = document.getElementById("boton_usar_camara");
+            if (boton) {
+                boton.disabled = data.activo;
+            }
+        } catch {}
+    }
+
+    actualizarBotonUsarCamara();
+    setInterval(actualizarBotonUsarCamara, 3000);
+
+    async function abrirModalCamara() {
+        const modal = document.getElementById("modal-camara");
+        const video = document.getElementById("video-camara");
+
+        modal.classList.remove("hidden");
+
+        try {
+            streamCamara = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = streamCamara;
+        } catch (err) {
+            console.error("Error cámara:", err);
+            cerrarModalCamara();
+        }
+    }
+
+    function cerrarModalCamara() {
+        const modal = document.getElementById("modal-camara");
+        const video = document.getElementById("video-camara");
+
+        if (streamCamara) {
+            streamCamara.getTracks().forEach(t => t.stop());
+            streamCamara = null;
+        }
+
+        video.srcObject = null;
+        modal.classList.add("hidden");
+    }
+
+    async function capturarYClasificar() {
+        const video = document.getElementById("video-camara");
+        const canvas = document.getElementById("canvas-captura");
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext("2d").drawImage(video, 0, 0);
+
+        cerrarModalCamara();
+
+        canvas.toBlob(async (blob) => {
+            const formData = new FormData();
+            formData.append("imagen", blob, "captura.jpg");
+            formData.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+            const resp = await fetch("{% url 'clasificacion' %}", {
+                method: "POST",
+                body: formData
+            });
+
+            if (resp.redirected) {
+                window.location.href = resp.url;
+            }
+        }, "image/jpeg");
+    }
 
     async function hacerClick(nombre) {
         const boton = document.getElementById(nombre);
@@ -152,5 +265,5 @@
             await abrirSelectorImagen();
         }
     });
-</script>
+    </script>
 {% endblock %}
