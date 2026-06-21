@@ -65,8 +65,7 @@ class ServicioVoz:
 
             return {
                 "ok": True,
-                "accion": "mensaje",
-                "mensaje": "Archivo seleccionado."
+                "mensaje": "Archivo seleccionado y clasificando."
             }
 
         if "cancelar" in texto or "salir" in texto or "cerrar" in texto:
@@ -84,6 +83,8 @@ class ServicioVoz:
             "accion": "desconocido",
             "mensaje": "Comando de archivo no reconocido."
         }
+    
+
     def _escuchar_siempre(self):
         while self.escuchando:
             if self.pausado:
@@ -93,9 +94,7 @@ class ServicioVoz:
             texto = self.audio.escuchar()
             if texto:
                 texto_limpio = texto.lower().strip()
-                print("Texto escuchado:", texto_limpio)
 
-                print("MODO ARCHIVOS ACTIVO?:", estado_archivo.esta_activo())
                 if estado_archivo.esta_activo():
                     resultado = self.procesar_comando_archivos(texto_limpio)
 

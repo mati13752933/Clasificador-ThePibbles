@@ -2,7 +2,7 @@
 {% block contenido %}
     <section class="min-h-screen flex justify-center items-center">
         <form method="POST" enctype="multipart/form-data" action="{% url 'clasificacion' %}"
-            class="bg-white border border-gray-300 rounded-[20px] px-3 pt-8 pb-3 text-center text-lg max-w-[500px] mx-auto">
+            class="bg-white border border-gray-300 rounded-[20px] px-3 pt-5 pb-3 text-center text-lg max-w-[500px] mx-auto">
             {% csrf_token %}
 
             <h2 class="text-black text-[1.8rem] font-medium">
@@ -39,7 +39,7 @@
                 <img id="preview-img"
                     src=""
                     alt="Vista previa"
-                    class="w-full max-h-[280px] object-contain shadow-md">
+                    class="w-full max-h-[100px] object-contain shadow-md">
             </div>
             <button id = "boton_clasificar" type="submit"
                 onclick="console.log('BOTON CLICKEADO')"
@@ -48,136 +48,109 @@
             </button>
         </form>
     </section>
-    <script>
-        const inputImagen = document.getElementById("file-input");
-        const previewContainer = document.getElementById("preview-container");
-        const previewImg = document.getElementById("preview-img");
+   <script>
+    const inputImagen = document.getElementById("file-input");
+    const previewContainer = document.getElementById("preview-container");
+    const previewImg = document.getElementById("preview-img");
 
-        inputImagen.addEventListener("change", function () {
-            const archivo = this.files[0];
+    let modoAsistido = false;
 
-            if (archivo) {
-                previewImg.src = URL.createObjectURL(archivo);
-                previewContainer.classList.remove("hidden");
-            } else {
-                previewImg.src = "";
-                previewContainer.classList.add("hidden");
-            }
-        });
-    </script>
-    <script>
-        const formClasificacion = document.querySelector("form");
-
-        formClasificacion.addEventListener("submit", function () {
-            console.log("FORMULARIO ENVIÁNDOSE");
-        });
-    </script>
-    <script>
     async function hacerClick(nombre) {
         const boton = document.getElementById(nombre);
-
-        if (!boton) {
-            console.log("No se encontró el botón");
-            return;
-        }
+        if (!boton) return;
 
         const rect = boton.getBoundingClientRect();
-
         const barraNavegador = window.outerHeight - window.innerHeight;
 
         const x = window.screenX + rect.left + (rect.width / 2);
         const y = window.screenY + barraNavegador + rect.top + (rect.height / 2);
 
-        console.log("Coordenadas:", x, y);
-
-        await fetch(`/control/click/?x=${x}&y=${y}`);
+        await fetch(`{% url 'click' %}?x=${x}&y=${y}`);
     }
 
-    window.addEventListener("DOMContentLoaded", function () {
-        const params = new URLSearchParams(window.location.search);
-        const accion = params.get("accion");
+    function hayImagenSeleccionada() {
+        return inputImagen && inputImagen.files && inputImagen.files.length > 0;
+    }
 
-        if (accion === "subir_imagen") {
-            setTimeout(() => {
-                hacerClick("boton_seleccionar");
-            }, 800);
+    async function abrirSelectorImagen() {
+        modoAsistido = true;
+
+        try {
+            await fetch("{% url 'activar_modo_archivos' %}");
+        } catch {}
+
+        try {
+            await fetch("{% url 'preparar_selector_archivos' %}");
+        } catch {}
+
+        setTimeout(() => {
+            hacerClick("boton_seleccionar");
+        }, 800);
+    }
+
+    async function clasificarImagenAutomatico() {
+        modoAsistido = true;
+
+        setTimeout(() => {
+            hacerClick("boton_clasificar");
+        }, 800);
+    }
+
+    async function ejecutarGestoClasificacion(gesto) {
+        if (gesto === "clasificacion") {
+            await abrirSelectorImagen();
+            return;
         }
 
-        if (accion === "clasificar") {
-            setTimeout(() => {
-                hacerClick("boton_clasificar");
-            }, 800);
-        }
-    });
-</script>
-<script>
-    window.addEventListener("DOMContentLoaded", async function () {
-        const params = new URLSearchParams(window.location.search);
-        const accion = params.get("accion");
-
-        if (accion === "subir_imagen") {
-            const inputImagen = document.getElementById("file-input");
-
-            if (inputImagen) {
-                await fetch("{% url 'preparar_selector_archivos' %}");
-
-                setTimeout(() => {
-                    inputImagen.click();
-                }, 300);
+        if (gesto === "click") {
+            if (hayImagenSeleccionada()) {
+                await clasificarImagenAutomatico();
+            } else {
+                await abrirSelectorImagen();
             }
         }
-    });
-</script>
-<script>
-    window.addEventListener("DOMContentLoaded", async function () {
-        const params = new URLSearchParams(window.location.search);
-        const accion = params.get("accion");
+    }
 
-        console.log("Acción recibida:", accion);
-
-        if (accion === "subir_imagen") {
-            const inputImagen = document.getElementById("file-input");
-
-            if (!inputImagen) {
-                console.log("No se encontró el input file");
-                return;
-            }
-
-            console.log("Activando modo selector...");
-
-            try {
-                const respuesta = await fetch("{% url 'activar_modo_archivos' %}");
-                const data = await respuesta.json();
-
-                console.log("Modo selector activado:", data);
-
-                setTimeout(() => {
-                    inputImagen.click();
-                }, 500);
-            } catch (error) {
-                console.error("Error al activar modo selector:", error);
-            }
-        }
-    });
-
-    const inputImagen = document.getElementById("file-input");
+    window.ejecutarGestoClasificacion = ejecutarGestoClasificacion;
 
     if (inputImagen) {
         inputImagen.addEventListener("change", async function () {
-            console.log("Archivo seleccionado, desactivando modo selector...");
+            const archivo = this.files[0];
 
-            if (inputImagen.files.length > 0) {
-                setTimeout(() => {
-                    hacerClick("boton_clasificar");
-                }, 800);
+            if (archivo) {
+                if (previewImg && previewContainer) {
+                    previewImg.src = URL.createObjectURL(archivo);
+                    previewContainer.classList.remove("hidden");
+                }
 
                 try {
                     await fetch("{% url 'desactivar_modo_archivos' %}");
-                } catch (error) {
-                    console.error("Error al desactivar modo selector:", error);
+                } catch {}
+
+                if (modoAsistido) {
+                    setTimeout(() => {
+                        hacerClick("boton_clasificar");
+                    }, 800);
                 }
+
+            } else {
+                if (previewImg && previewContainer) {
+                    previewImg.src = "";
+                    previewContainer.classList.add("hidden");
+                }
+
+                modoAsistido = false;
             }
         });
     }
+
+    window.addEventListener("DOMContentLoaded", async function () {
+        const params = new URLSearchParams(window.location.search);
+        const accion = params.get("accion");
+
+        if (accion === "subir_imagen") {
+            await abrirSelectorImagen();
+        }
+    });
 </script>
 {% endblock %}
