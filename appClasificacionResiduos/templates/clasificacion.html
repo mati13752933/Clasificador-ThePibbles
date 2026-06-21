@@ -13,7 +13,7 @@
                 Selecciona una imagen del residuo para clasificarla.
             </p>
 
-            <label for="file-input"
+            <label id = "boton_seleccionar" for="file-input"
                 class="bg-white relative flex gap-[10px] flex-col justify-center items-center p-[10px] mt-[2.1875rem] rounded-[10px] border-2 border-dashed border-teal-300 text-gray-700 cursor-pointer transition-all duration-200 hover:bg-teal-100 hover:border-gray-700">
                 
                 <span class="text-gray-700 text-[20px] font-bold text-center transition-colors duration-200">
@@ -41,7 +41,7 @@
                     alt="Vista previa"
                     class="w-full max-h-[280px] object-contain shadow-md">
             </div>
-            <button type="submit"
+            <button id = "boton_clasificar" type="submit"
                 onclick="console.log('BOTON CLICKEADO')"
                     class="mt-6 bg-teal-500 text-white px-6 py-2 rounded-lg font-normal transition-all duration-200 active:scale-95 hover:ring-2 hover:ring-teal-500 hover:ring-offset-4">
                 Clasificar
@@ -73,7 +73,45 @@
         });
     </script>
     <script>
+    async function hacerClick(nombre) {
+        const boton = document.getElementById(nombre);
+
+        if (!boton) {
+            console.log("No se encontró el botón");
+            return;
+        }
+
+        const rect = boton.getBoundingClientRect();
+
+        const barraNavegador = window.outerHeight - window.innerHeight;
+
+        const x = window.screenX + rect.left + (rect.width / 2);
+        const y = window.screenY + barraNavegador + rect.top + (rect.height / 2);
+
+        console.log("Coordenadas:", x, y);
+
+        await fetch(`/control/click/?x=${x}&y=${y}`);
+    }
+
     window.addEventListener("DOMContentLoaded", function () {
+        const params = new URLSearchParams(window.location.search);
+        const accion = params.get("accion");
+
+        if (accion === "subir_imagen") {
+            setTimeout(() => {
+                hacerClick("boton_seleccionar");
+            }, 800);
+        }
+
+        if (accion === "clasificar") {
+            setTimeout(() => {
+                hacerClick("boton_clasificar");
+            }, 800);
+        }
+    });
+</script>
+<script>
+    window.addEventListener("DOMContentLoaded", async function () {
         const params = new URLSearchParams(window.location.search);
         const accion = params.get("accion");
 
@@ -81,13 +119,65 @@
             const inputImagen = document.getElementById("file-input");
 
             if (inputImagen) {
+                await fetch("{% url 'preparar_selector_archivos' %}");
+
                 setTimeout(() => {
                     inputImagen.click();
-                }, 500);
-            } else {
-                console.log("No se encontró el input con id='file-input'");
+                }, 300);
             }
         }
     });
+</script>
+<script>
+    window.addEventListener("DOMContentLoaded", async function () {
+        const params = new URLSearchParams(window.location.search);
+        const accion = params.get("accion");
+
+        console.log("Acción recibida:", accion);
+
+        if (accion === "subir_imagen") {
+            const inputImagen = document.getElementById("file-input");
+
+            if (!inputImagen) {
+                console.log("No se encontró el input file");
+                return;
+            }
+
+            console.log("Activando modo selector...");
+
+            try {
+                const respuesta = await fetch("{% url 'activar_modo_archivos' %}");
+                const data = await respuesta.json();
+
+                console.log("Modo selector activado:", data);
+
+                setTimeout(() => {
+                    inputImagen.click();
+                }, 500);
+            } catch (error) {
+                console.error("Error al activar modo selector:", error);
+            }
+        }
+    });
+
+    const inputImagen = document.getElementById("file-input");
+
+    if (inputImagen) {
+        inputImagen.addEventListener("change", async function () {
+            console.log("Archivo seleccionado, desactivando modo selector...");
+
+            if (inputImagen.files.length > 0) {
+                setTimeout(() => {
+                    hacerClick("boton_clasificar");
+                }, 800);
+
+                try {
+                    await fetch("{% url 'desactivar_modo_archivos' %}");
+                } catch (error) {
+                    console.error("Error al desactivar modo selector:", error);
+                }
+            }
+        });
+    }
 </script>
 {% endblock %}

@@ -1,10 +1,11 @@
 import threading
 import time
 from queue import PriorityQueue
-
 from Libreria.thepibbles.Audio.stt import Audio
 from Libreria.thepibbles.Audio.tts import Voz
 from .interprete import interpretar_comando
+import pyautogui
+from .estado_control import estado_archivo
 
 
 class ServicioVoz:
@@ -34,6 +35,55 @@ class ServicioVoz:
         if self.escuchando:
             self.pausado = False
 
+   
+    def procesar_comando_archivos(self, texto):
+        if "bajar" in texto or "abajo" in texto or "siguiente" in texto:
+            pyautogui.press("down")
+            estado_archivo.archivo_actual += 1
+
+            return {
+                "ok": True,
+                "accion": "mensaje",
+                "mensaje": f"Posicionado en archivo {estado_archivo.archivo_actual}."
+            }
+
+        if "subir" in texto or "arriba" in texto or "anterior" in texto:
+            pyautogui.press("up")
+
+            if estado_archivo.archivo_actual > 1:
+                estado_archivo.archivo_actual -= 1
+
+            return {
+                "ok": True,
+                "accion": "mensaje",
+                "mensaje": f"Posicionado en archivo {estado_archivo.archivo_actual}."
+            }
+
+        if "seleccionar" in texto or "elegir" in texto or "aceptar" in texto:
+            pyautogui.press("enter")
+            estado_archivo.desactivar()
+
+            return {
+                "ok": True,
+                "accion": "mensaje",
+                "mensaje": "Archivo seleccionado."
+            }
+
+        if "cancelar" in texto or "salir" in texto or "cerrar" in texto:
+            pyautogui.press("esc")
+            estado_archivo.desactivar()
+
+            return {
+                "ok": True,
+                "accion": "mensaje",
+                "mensaje": "Selección de archivo cancelada."
+            }
+
+        return {
+            "ok": False,
+            "accion": "desconocido",
+            "mensaje": "Comando de archivo no reconocido."
+        }
     def _escuchar_siempre(self):
         while self.escuchando:
             if self.pausado:
@@ -41,14 +91,26 @@ class ServicioVoz:
                 continue
 
             texto = self.audio.escuchar()
-
             if texto:
+                texto_limpio = texto.lower().strip()
+                print("Texto escuchado:", texto_limpio)
+
+                print("MODO ARCHIVOS ACTIVO?:", estado_archivo.esta_activo())
+                if estado_archivo.esta_activo():
+                    resultado = self.procesar_comando_archivos(texto_limpio)
+
+                    if resultado:
+                        prioridad = self.obtener_prioridad(resultado)
+                        self.cola.put((prioridad, time.time(), texto, resultado))
+                        continue
+
+
                 resultado = interpretar_comando(texto)
-                print(f"Comando interpretado: {resultado}")
+                print("Comando interpretado:", resultado)
+
                 prioridad = self.obtener_prioridad(resultado)
-
                 self.cola.put((prioridad, time.time(), texto, resultado))
-
+            
             time.sleep(0.2)
 
     def obtener_prioridad(self, resultado):
@@ -58,13 +120,14 @@ class ServicioVoz:
         intencion = resultado.get("intencion")
 
         prioridades = {
-            "abrir_selector_imagen": 2,
-            "ir_clasificacion": 1,
-            "ir_reportes": 1,
-            "ir_perfil": 1,
-            "ir_admin": 1,
-            "ir_inicio": 1,
-            "detener": 3
+            "abrir_selector_imagen": 3,
+            "ir_clasificacion": 2,
+            "ir_reportes": 2,
+            "ir_perfil": 2,
+            "ir_admin": 2,
+            "ir_inicio": 2,
+            "detener": 4,
+            "mensaje": 1,
         }
 
         return prioridades.get(intencion, 8)
@@ -81,3 +144,5 @@ class ServicioVoz:
         }
 
 
+
+       

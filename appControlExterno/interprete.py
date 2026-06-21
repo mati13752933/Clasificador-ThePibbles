@@ -12,7 +12,7 @@ VERBOS = {
         "identificar", "detectar"
     ],
     "cargar": [
-        "subir", "cargar", "adjuntar", "seleccionar", "elegir", "elige", "carga", "adjunta"
+        "subir", "cargar", "adjuntar", "seleccionar", "elegir", "elige", "carga", "adjunta", "elegir"
     ],
     "ayuda": [
         "ayuda", "ayudame", "ayúdame", "instrucciones", "explica"
@@ -54,10 +54,6 @@ OBJETOS = {
     ],
     "camara" : [
         "cámara", "video"
-    ],
-
-    "control" : [
-        "control", "voz", "controlador", "comandos"
     ],
 
     "sesion": [
@@ -116,7 +112,7 @@ def interpretar_comando(texto):
             "accion": "desconocido",
             "mensaje": "No se detectó ningún comando."
         }
-
+    
     verbo = buscar_grupo(texto_limpio, VERBOS)
     objeto = buscar_grupo(texto_limpio, OBJETOS)
 
@@ -151,7 +147,7 @@ def interpretar_comando(texto):
             "mensaje": "Entendí la acción, pero no entendí a qué módulo quieres ir."
         }
 
-    if verbo in ["ir", "clasificar"] and objeto == "clasificacion":
+    if verbo in ["ir" ] and objeto == "clasificacion":
         return {
             "ok": True,
             "accion": "redirigir",
@@ -174,15 +170,7 @@ def interpretar_comando(texto):
             "ruta": "/reportes/",
             "mensaje": "Abriendo reportes."
         }
-    
-    if verbo == "ir" and objeto == "control":
-        return {
-            "ok": True,
-            "accion": "redirigir",
-            "ruta": "/control/",
-            "mensaje": "Abriendo control."
-        }
-
+  
     if verbo == "ir" and objeto == "perfil":
         return {
             "ok": True,
