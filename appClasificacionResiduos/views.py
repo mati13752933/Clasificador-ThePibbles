@@ -35,5 +35,3 @@ def resultado(request):
     resultado = request.session.get("resultado")
     return render(request, 'clasificado.html', {"imagen_url": imagen_url, "resultado": resultado})
 
-def clasificarCamara():
-    pass;

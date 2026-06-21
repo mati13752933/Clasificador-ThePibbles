@@ -5,29 +5,31 @@ from django.http import JsonResponse, HttpResponse
 from Libreria.thepibbles.Audio.tts import Voz
 import pyautogui
 import time
-
+from .estado_control import estado_archivo
 from .control_voz import ServicioVoz
 from .servicio_camara import ServicioCamara
+import threading
+import pygetwindow as gw
 
 servicio_voz = ServicioVoz()
 servicio_camara = ServicioCamara()
-
-@login_required
-def control_voz(request):
-    return render(request, "control.html", {
-        "escuchando": servicio_voz.escuchando,
-        "camara_activa": servicio_camara.camara_activa
-    })
-
 @login_required
 def iniciar_voz(request):
     servicio_voz.iniciar()
-    return redirect("control_voz")
+    return JsonResponse({
+        "ok": True,
+        "escuchando": servicio_voz.escuchando,
+        "mensaje": "Escucha activada."
+    })
 
 @login_required
 def detener_voz(request):
     servicio_voz.detener()
-    return redirect("control_voz")
+    return JsonResponse({
+        "ok": True,
+        "escuchando": servicio_voz.escuchando,
+        "mensaje": "Se detuvo la escucha."
+    })
 
 @login_required
 def ejecutar_comando_voz(request):
@@ -48,27 +50,45 @@ def ejecutar_comando_voz(request):
     })
 
 @login_required
+def estado_voz(request):
+    return JsonResponse({
+        "escuchando": servicio_voz.escuchando
+    })
+
+@login_required
+def estado_camara(request):
+    return JsonResponse({
+        "activo": servicio_camara.camara_activa
+    })
+
+@login_required
 def iniciar_camara(request):
     servicio_camara.iniciar()
-    return redirect("control_voz")
+    return JsonResponse({
+        "ok": True,
+        "activo": servicio_camara.camara_activa
+    })
 
 @login_required
 def detener_camara(request):
     servicio_camara.detener()
-    return redirect("control_voz")
+    return JsonResponse({
+        "ok": True,
+        "activo": servicio_camara.camara_activa
+    })
 
 @login_required
 def ejecutar_comando_camara(request):
     if not servicio_camara.camara_activa:
-        return JsonResponse({"camara_activa": False, "hay_gesto": False})
+        return JsonResponse({"activo": False, "hay_gesto": False})
 
     gesto = servicio_camara.obtener_siguiente_gesto()
 
     if gesto is None:
-        return JsonResponse({"camara_activa": True, "hay_gesto": False})
+        return JsonResponse({"activo": True, "hay_gesto": False})
 
     return JsonResponse({
-        "camara_activa": True,
+        "activo": True,
         "hay_gesto": True,
         "gesto": gesto
     })
@@ -81,7 +101,7 @@ def cerrar_sesion_voz(request):
 
 @login_required
 def hablar_mensaje(request):
-    texto = request.GET.get("texto", "Comando ejecutado.")
+    texto = request.GET.get("texto")
     voz = Voz()
     audio = voz.volver_audio(texto)
     return HttpResponse(audio.getvalue(), content_type="audio/mpeg")
@@ -108,3 +128,67 @@ def pausar_voz(request):
 def reanudar_voz(request):
     servicio_voz.reanudar()
     return JsonResponse({"ok": True})
+
+@login_required
+def activar_modo_archivos(request):
+    estado_archivo.activar()
+
+    return JsonResponse({
+        "ok": True,
+        "modo_archivos": True,
+        "archivo_actual": estado_archivo.archivo_actual,
+        "mensaje": "Modo selección de archivo activado."
+    })
+
+
+@login_required
+def desactivar_modo_archivos(request):
+    estado_archivo.desactivar()
+
+    return JsonResponse({
+        "ok": True,
+        "modo_archivos": False,
+        "mensaje": "Modo selección de archivo desactivado."
+    })
+
+def posicionar_mouse_primer_archivo():
+    try:
+        
+        time.sleep(2.2)
+
+        ventana = gw.getActiveWindow()
+
+        if ventana is None:
+            print("[Archivos] No hay ventana activa")
+            return
+
+        print("[Archivos] Ventana activa:", ventana.title)
+
+    
+        x = ventana.left + 230
+        y = ventana.top + 180
+
+        pyautogui.moveTo(x, y, duration=0.2)
+        pyautogui.click()
+
+        print("[Archivos] Mouse posicionado en el primer archivo")
+
+    except Exception as e:
+        print("[Archivos] Error posicionando mouse:", e)
+
+    finally:
+        print("[Archivos] Hilo de posicionamiento finalizado")
+
+
+@login_required
+def preparar_selector_archivos(request):
+    hilo = threading.Thread(
+        target=posicionar_mouse_primer_archivo,
+        daemon=True
+    )
+    hilo.start()
+    
+    return JsonResponse({
+        "ok": True,
+        "mensaje": "Preparando selector de archivos."
+    })
