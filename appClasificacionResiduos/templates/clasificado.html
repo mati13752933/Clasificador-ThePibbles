@@ -39,8 +39,8 @@
                 {% if resultado %}
                     
                     {% if resultado.ok %}
-                        <p class="text-lg text-black mb-4">
-                            <strong>Clasificación:</strong>
+                        <p id="resultado" class="text-lg text-black mb-4">
+                            <strong>Clasificación: </strong>
                             {{ resultado.clasificacion }}
                         </p>
                         <div class="flex justify-center my-4">
@@ -76,4 +76,62 @@
     </div>
 
 </section>
+<script>
+    async function escuchaEstaActiva() {
+        try {
+            const respuesta = await fetch("{% url 'estado_voz' %}");
+
+            if (!respuesta.ok) {
+                return false;
+            }
+
+            const data = await respuesta.json();
+
+            return data.escuchando === true;
+
+        } catch (error) {
+            console.log("No se pudo consultar estado de voz:", error);
+            return false;
+        }
+    }
+
+    async function leerResultadoClasificacion() {
+        const rutaActual = window.location.pathname;
+
+        if (!rutaActual.includes("/clasificacion/resultado")) {
+            return;
+        }
+
+        const vozActiva = await escuchaEstaActiva();
+
+        if (!vozActiva) {
+            console.log("No se lee el resultado porque la escucha está desactivada.");
+            return;
+        }
+
+        const clasificacion = document.getElementById("resultado");
+        if (!clasificacion) {
+            console.log("No se encontró el resultado de clasificación.");
+            return;
+        }
+
+        const textoClasificacion = clasificacion.textContent.trim();
+        
+        let mensaje = ` ${textoClasificacion}.`;
+
+        console.log("Leyendo resultado:", mensaje);
+
+        if (typeof hablarMensaje === "function") {
+            await hablarMensaje(mensaje);
+        } else {
+            console.log("La función hablarMensaje no existe.");
+        }
+    }
+
+    window.addEventListener("DOMContentLoaded", function () {
+        setTimeout(() => {
+            leerResultadoClasificacion();
+        }, 800);
+    });
+</script>
 {% endblock%}

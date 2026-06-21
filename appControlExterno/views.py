@@ -169,9 +169,9 @@ def posicionar_mouse_primer_archivo():
         y = ventana.top + 180
 
         pyautogui.moveTo(x, y, duration=0.2)
+        time.sleep(1)
         pyautogui.click()
 
-        print("[Archivos] Mouse posicionado en el primer archivo")
 
     except Exception as e:
         print("[Archivos] Error posicionando mouse:", e)
