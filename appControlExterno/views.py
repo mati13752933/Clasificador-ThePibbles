@@ -82,9 +82,33 @@ def ejecutar_comando_camara(request):
     if not servicio_camara.camara_activa:
         return JsonResponse({"activo": False, "hay_gesto": False})
 
-    gesto = servicio_camara.obtener_siguiente_gesto()
+    resultado = servicio_camara.obtener_siguiente_gesto()
 
-    if gesto is None:
+    if resultado is None:
+        return JsonResponse({"activo": True, "hay_gesto": False})
+
+    
+    accion = resultado.get("accion")
+
+    if accion == "detener_camara":
+        gesto = "detener"
+    elif accion == "redirigir":
+        ruta = resultado.get("ruta", "")
+        if ruta == "/":
+            gesto = "inicio"
+        elif "/clasificacion/" in ruta:
+            gesto = "clasificacion"
+        elif "/reportes/" in ruta:
+            gesto = "reportes"
+        elif "/perfil/" in ruta:
+            gesto = "perfil"
+        else:
+            gesto = "desconocido"
+    elif accion == "abrir_selector_imagen":
+        gesto = "click"
+    elif accion == "mensaje":
+        return JsonResponse({"activo": True, "hay_gesto": False})
+    else:
         return JsonResponse({"activo": True, "hay_gesto": False})
 
     return JsonResponse({

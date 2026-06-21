@@ -413,8 +413,13 @@
                 return;
             }
 
+            if (data.gesto === "inicio") {
+                window.location.href = "/";
+                return;
+            }
+
             if (data.gesto === "click") {
-                console.log("Gesto click detectado");
+                window.location.href = "/clasificacion/?accion=subir_imagen";
                 return;
             }
 
