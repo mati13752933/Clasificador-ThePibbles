@@ -117,6 +117,13 @@ class ServicioCamara:
                 "mensaje": "Abriendo perfil."
             }
 
+        if gesto == "capturar_clasificacion":
+            return {
+                "ok": True,
+                "accion": "capturar_clasificacion",
+                "mensaje": "Listo para capturar y clasificar."
+            }
+
         if gesto == "subir_imagen":
             return {
                 "ok": True,

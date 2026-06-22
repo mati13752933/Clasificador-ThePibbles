@@ -291,6 +291,25 @@
                 return;
             }
 
+            if (resultado.ok === true && resultado.accion === "abrir_camara") {
+                window.location.href = resultado.ruta;
+                return;
+            }
+
+            if (resultado.ok === true && resultado.accion === "clasificar_por_video") {
+                const enClasificacion = window.location.pathname.includes("/clasificacion/");
+
+                if (enClasificacion) {
+                    if (typeof window.ejecutarGestoClasificacion === "function") {
+                        window.ejecutarGestoClasificacion("capturar");
+                    } else if (typeof window.capturarYClasificar === "function") {
+                        window.capturarYClasificar();
+                    }
+                }
+
+                return;
+            }
+
             procesandoComando = false;
 
         } catch (error) {
@@ -386,7 +405,20 @@
             console.log("Gesto recibido:", data.gesto);
 
             if (data.gesto === "clasificacion") {
-                window.location.href = "/clasificacion/";
+                if (!window.location.pathname.includes("/clasificacion/")) {
+                    window.location.href = "/clasificacion/";
+                }
+                return;
+            }
+
+            if (data.gesto === "capturar_clasificacion") {
+                if (window.location.pathname.includes("/clasificacion/")) {
+                    if (typeof window.ejecutarGestoClasificacion === "function") {
+                        window.ejecutarGestoClasificacion("capturar");
+                    } else if (typeof window.capturarYClasificar === "function") {
+                        window.capturarYClasificar();
+                    }
+                }
                 return;
             }
 

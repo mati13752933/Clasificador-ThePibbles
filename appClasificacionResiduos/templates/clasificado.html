@@ -3,18 +3,18 @@
 {% load static %}
 <section class="min-h-screen flex flex-col items-center px-6 py-10">
 
-    <h1 class="text-[60px] font-bold text-center my-8">
+    <h1 class="text-[60px] font-bold text-center my-8 text-teal-600">
         Resultado de Clasificación
     </h1>
 
-    <p class="text-xl text-gray-600 text-center mb-8">
+    <p class="text-xl text-center mb-8 text-teal-600">
         Imagen analizada y resultado obtenido por el sistema.
     </p>
 
     <div class="w-full max-w-[900px] bg-white rounded-3xl shadow-xl p-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
 
         <div class="w-full">
-            <h2 class="text-2xl font-bold text-black uppercase mb-4">
+            <h2 class="text-2xl font-bold uppercase mb-4 text-center text-teal-600">
                 Imagen cargada
             </h2>
 
@@ -31,17 +31,42 @@
             {% endif %}
         </div>
         <div class="w-full">
-            <h2 class="text-2xl font-bold text-black uppercase mb-4">
+            <h2 class="text-2xl font-bold uppercase mb-4 text-center text-teal-600">
                 Resultado
             </h2>
 
             <div class="rounded-2xl border border-teal-300 bg-teal-50 p-6">
                 {% if resultado %}
-                    
                     {% if resultado.ok %}
-                        <p id="resultado" class="text-lg text-black mb-4">
+                        <p id="resultado-clasificacion" class="text-lg text-black mb-4">
                             <strong>Clasificación: </strong>
-                            {{ resultado.clasificacion }}
+                            {% if resultado.clasificacion is not None and resultado.clasificacion != '' and resultado.clasificacion != 'No disponible' %}
+                                {{ resultado.clasificacion }}
+                            {% else %}
+                                No disponible
+                            {% endif %}
+                        </p>
+                        <p id="resultado-tipo" class="text-lg text-black mb-4">
+                            <strong>Tipo: </strong>
+                            {% if resultado.tipo is not None and resultado.tipo != '' and resultado.tipo != 'No disponible' %}
+                                {{ resultado.tipo }}
+                            {% else %}
+                                No disponible
+                            {% endif %}
+                        </p>
+                        <p id="resultado-utilidad" class="text-lg text-black mb-4">
+                            <strong>Utilidad: </strong>
+                            {% if resultado.utilidad is not None and resultado.utilidad != '' and resultado.utilidad != 'No disponible' %}
+                                {% with utilidad_texto=resultado.utilidad|stringformat:"s" %}
+                                    {% if utilidad_texto|slice:"-1:" != '%' %}
+                                        {{ utilidad_texto }}%
+                                    {% else %}
+                                        {{ utilidad_texto }}
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                No disponible
+                            {% endif %}
                         </p>
 
                         {% if resultado.clasificacion == 'Infeccioso' %}
@@ -120,15 +145,17 @@
             return;
         }
 
-        const clasificacion = document.getElementById("resultado");
-        if (!clasificacion) {
-            console.log("No se encontró el resultado de clasificación.");
+        const bloquesResultado = document.querySelectorAll('[id^="resultado-"]');
+
+        if (!bloquesResultado.length) {
+            console.log("No se encontraron datos de resultado.");
             return;
         }
 
-        const textoClasificacion = clasificacion.textContent.trim();
-        
-        let mensaje = ` ${textoClasificacion}.`;
+        const mensaje = Array.from(bloquesResultado)
+            .map((bloque) => bloque.textContent.replace(/\s+/g, ' ').trim())
+            .filter(Boolean)
+            .join(' ');
 
         console.log("Leyendo resultado:", mensaje);
 

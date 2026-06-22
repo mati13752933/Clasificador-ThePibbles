@@ -44,7 +44,7 @@ GESTOS_NAVEGACION = {
     2: "clasificacion",
     3: "reportes",
     4: "perfil",
-    5: "subir_imagen",
+    5: "capturar_clasificacion",
 }
 
 GESTOS_ARCHIVOS = {
@@ -55,16 +55,16 @@ GESTOS_ARCHIVOS = {
 }
 
 ETIQUETAS_PANTALLA = {
-    "detener":            "PUÑO - Detener camara",
-    "inicio":             "1 - Inicio",
-    "clasificacion":      "2 - Clasificacion",
-    "reportes":           "3 - Reportes",
-    "perfil":             "4 - Perfil",
-    "subir_imagen":       "5 - Subir imagen",
-    "archivo_subir":      "1 - Subir",
-    "archivo_bajar":      "2 - Bajar",
-    "archivo_cerrar":     "3 - Cerrar selector",
-    "archivo_seleccionar":"5 - Seleccionar archivo",
+    "detener":              "PUÑO - Detener camara",
+    "inicio":               "1 - Inicio",
+    "clasificacion":        "2 - Clasificacion",
+    "reportes":             "3 - Reportes",
+    "perfil":               "4 - Perfil",
+    "capturar_clasificacion":"5 - Capturar clasificación",
+    "archivo_subir":        "1 - Subir",
+    "archivo_bajar":        "2 - Bajar",
+    "archivo_cerrar":       "3 - Cerrar selector",
+    "archivo_seleccionar":  "5 - Seleccionar archivo",
 }
 
 

@@ -78,7 +78,7 @@
             <video id="video-camara" autoplay playsinline muted
                 class="w-full rounded-xl bg-black"></video>
 
-            <button onclick="capturarYClasificar()"
+            <button id="boton-capturar-clasificar" type="button" onclick="capturarYClasificar()"
                 class="w-full bg-teal-500 text-white px-6 py-2 rounded-lg font-normal transition-all duration-200 active:scale-95 hover:ring-2 hover:ring-teal-500 hover:ring-offset-4">
                 Capturar y clasificar
             </button>
@@ -118,11 +118,18 @@
         const modal = document.getElementById("modal-camara");
         const video = document.getElementById("video-camara");
 
+        if (!modal || !video) {
+            return;
+        }
+
         modal.classList.remove("hidden");
 
         try {
-            streamCamara = await navigator.mediaDevices.getUserMedia({ video: true });
+            if (!streamCamara) {
+                streamCamara = await navigator.mediaDevices.getUserMedia({ video: true });
+            }
             video.srcObject = streamCamara;
+            await video.play().catch(() => {});
         } catch (err) {
             console.error("Error cámara:", err);
             cerrarModalCamara();
@@ -145,25 +152,69 @@
     async function capturarYClasificar() {
         const video = document.getElementById("video-camara");
         const canvas = document.getElementById("canvas-captura");
+        const boton = document.getElementById("boton-capturar-clasificar");
+
+        if (!video || !canvas) {
+            return;
+        }
+
+        if (!video.videoWidth || !video.videoHeight) {
+            await abrirModalCamara();
+            await new Promise((resolve) => setTimeout(resolve, 250));
+        }
+
+        if (!video.videoWidth || !video.videoHeight) {
+            return;
+        }
+
+        if (boton) {
+            boton.disabled = true;
+            boton.textContent = "Capturando...";
+        }
 
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        canvas.getContext("2d").drawImage(video, 0, 0);
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         cerrarModalCamara();
 
         canvas.toBlob(async (blob) => {
+            if (!blob) {
+                if (boton) {
+                    boton.disabled = false;
+                    boton.textContent = "Capturar y clasificar";
+                }
+                return;
+            }
+
             const formData = new FormData();
             formData.append("imagen", blob, "captura.jpg");
-            formData.append("csrfmiddlewaretoken", "{{ csrf_token }}");
 
-            const resp = await fetch("{% url 'clasificacion' %}", {
-                method: "POST",
-                body: formData
-            });
+            try {
+                const resp = await fetch("{% url 'clasificacion' %}", {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    credentials: "same-origin"
+                });
 
-            if (resp.redirected) {
-                window.location.href = resp.url;
+                if (resp.redirected) {
+                    window.location.href = resp.url;
+                } else if (resp.ok) {
+                    window.location.href = "{% url 'resultado' %}";
+                } else {
+                    console.error("Error al clasificar desde cámara:", resp.status, resp.statusText);
+                }
+            } catch (error) {
+                console.error("Error al clasificar desde cámara:", error);
+            } finally {
+                if (boton) {
+                    boton.disabled = false;
+                    boton.textContent = "Capturar y clasificar";
+                }
             }
         }, "image/jpeg");
     }
@@ -215,6 +266,25 @@
             return;
         }
 
+        if (gesto === "abrir_camara") {
+            await abrirModalCamara();
+            return;
+        }
+
+        if (gesto === "capturar") {
+            const modal = document.getElementById("modal-camara");
+            const modalAbierto = modal && !modal.classList.contains("hidden");
+
+            if (!modalAbierto && typeof abrirModalCamara === "function") {
+                await abrirModalCamara();
+            }
+
+            if (typeof capturarYClasificar === "function") {
+                await capturarYClasificar();
+            }
+            return;
+        }
+
         if (gesto === "click") {
             if (hayImagenSeleccionada()) {
                 await clasificarImagenAutomatico();
@@ -224,6 +294,8 @@
         }
     }
 
+    window.abrirModalCamara = abrirModalCamara;
+    window.capturarYClasificar = capturarYClasificar;
     window.ejecutarGestoClasificacion = ejecutarGestoClasificacion;
 
     if (inputImagen) {
@@ -263,6 +335,8 @@
 
         if (accion === "subir_imagen") {
             await abrirSelectorImagen();
+        } else if (accion === "abrir_camara") {
+            await abrirModalCamara();
         }
     });
     </script>

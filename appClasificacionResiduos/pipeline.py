@@ -11,6 +11,7 @@ from Libreria.thepibbles.Gramatica.lexer import Tokenizador
 from Libreria.thepibbles.Gramatica.parser import Parser
 from Libreria.thepibbles.IA.promptBuilder import PromptBuilder
 from Libreria.thepibbles.IA.ia import Ia
+from Libreria.thepibbles.Gramatica.control import Extractor
 
 #Puse comentarios para que no sea todo un despute
 
@@ -201,11 +202,11 @@ def mainPrimeCompletoInsanoKaiokenSsj5(imagen, archivo_bytes):
     objetoPrincipal=listita[0]
     porcentaje=objetoPrincipal["similtudReferencia"]
     tipoObjeto=objetoPrincipal["tipoClasificado"]
-    promptcito={"accion": "Clasificar", "tema": "Residuos", "parametros": {"tipo": "texto", "contexto": f"Eres un Clasificador de residuos. El algoritmo de visión artificial determinó que el objeto principal analizado geométricamente tiene un {porcentaje}% de similitud matemática con una '{tipoObjeto}'. Utiliza este dato junto con la imagen para clasificar con precisión.", "restricciones": "Clasifica el tipo de residuo que es, tiene que ser uno de estos: [Reciclable, No Reciclable, Aprovechable, Infeccioso]. Responde ÚNICAMENTE la clasificación."}}
+    promptcito={"accion": "Clasificar", "tema": "Residuos", "parametros": {"tipo": "texto", "contexto": f"Eres un Clasificador de residuos. El algoritmo de visión artificial determinó que el objeto principal analizado geométricamente tiene un {porcentaje}% de similitud matemática con una '{tipoObjeto}'. Utiliza este dato junto con la imagen para clasificar con precisión, ademas de darme el % de utilidad que le calculas, asegurate de tomar en cuenta el estado en el que se encuentra el objeto al momento de clasificar, no solo por el material", "restricciones": "Clasifica el tipo de residuo que es, tiene que ser uno de estos: [Reciclable, No Reciclable, Aprovechable, Infeccioso]. Identifica el tipo de residuo que es, entre estas opciones: [plastico, papel, lata, madera, vidrio, cascara, carton, etc] Responde en un JSON con datos clasificacion, tipo, utilidad "}}
     constructorcito=PromptBuilder()
     promptFinal =constructorcito.construir(promptcito)
     ia = Ia()
-    res=ia.generarConImagen(archivo_bytes.read(), archivo_bytes.content_type, promptFinal)
+    res = ia.generarConImagen(archivo_bytes.read(), archivo_bytes.content_type, promptFinal)
     return res
 
 def iniciarCamara():
@@ -288,16 +289,3 @@ def procesarGestoCamara(resultados_camara,datos_plantillas):
             pyautogui.sleep(0.3) 
         return gestoGanador,similitud
     return None
-
-#para LEITO
-def identificarImagen(imagen):
-    promptcito = {"accion": "Identificar", "tema": "Residuos", "parametros": {"tipo": "texto", "contexto": "Eres un Identificador de residuos (plástico, lata, papel, madera, vidrio, carton, cáscaras de frutas, etc...)", "restricciones": "Identifica el tipo de residuo que es, entre estas opciones: [plastico, papel, lata, madera, vidrio, cascara, carton, LO QUE VEAS LEITOxd]"}}
-    constructorcito = PromptBuilder()
-    prompt_final = constructorcito.construir(promptcito)
-    ia = Ia()
-    res = ia.generarConImagen(imagen.read(), imagen.content_type, prompt_final)
-    return res
-
-#paraProbar la camara de mrda
-if __name__ == "__main__":
-    iniciarCamara()
