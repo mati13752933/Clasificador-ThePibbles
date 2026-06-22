@@ -134,7 +134,7 @@ def clasificacion(request):
             imagen_base64 = base64.b64encode(imagen_bytes).decode('utf-8')
             imagen_url = f"data:{imagen.content_type};base64,{imagen_base64}"
             resultado = {"ok": True, **datos_ia}
-            resultado = guardar_resultado(resultado)
+            resultado = guardar_resultado(request, resultado)
             request.session["imagen_url"] = imagen_url
             request.session["resultado"] = resultado
             return redirect("resultado")
@@ -163,14 +163,12 @@ def guardar_resultado(request, respuesta):
 
     RegistroClasificacion.objects.create(
         perfil=perfil,
-        clasificacion=clasificacion,
         tipo=tipo,
-        utilidad=utilidad,
+        clasificacion=clasificacion,
         cantidad=cantidad,
-        peso_unitario_kg=peso,
-        precio_bs_kg=precio,
+        utilidad=utilidad,
+        peso_unitario_kg=peso,    
         ingreso=ingreso,
-        egreso=Decimal("0.00")
+        egreso=Decimal('0.00'),
     )
-
     return respuesta

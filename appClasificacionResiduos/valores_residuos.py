@@ -31,6 +31,10 @@ VALORES_MATERIALES = {
         "peso_promedio_kg": Decimal("0.300"),
         "precio_bs_kg": Decimal("0.00"),
     },
+    "cascara": {
+        "peso_promedio_kg": Decimal("0.050"),
+        "precio_bs_kg": Decimal("0.00"),
+    },
 }
 
 
@@ -70,18 +74,12 @@ def obtener_tipo(tipo):
 
     return "desconocido"
 
-
 def calcular_valores_residuo(tipo, clasificacion, cantidad=1):
     material = obtener_tipo(tipo)
 
     if material not in VALORES_MATERIALES:
-        return {
-            "material": "desconocido",
-            "peso": Decimal("0.000"),
-            "precio": Decimal("0.00"),
-            "ingreso": Decimal("0.00"),
-            "egreso": Decimal("0.00"),
-        }
+        # Devolvemos 3 valores en el orden correcto: ingreso, peso, precio
+        return Decimal("0.00"), Decimal("0.000"), Decimal("0.00")
 
     datos = VALORES_MATERIALES[material]
 
@@ -93,10 +91,5 @@ def calcular_valores_residuo(tipo, clasificacion, cantidad=1):
     else:
         ingreso = Decimal("0.00")
 
-    return {
-        "material": material,
-        "peso": peso,
-        "precio": precio,
-        "ingreso": ingreso,
-        "egreso": Decimal("0.00"),
-    }
+    # Devolvemos los 3 valores que views.py intenta desempaquetar
+    return ingreso, peso, precio
