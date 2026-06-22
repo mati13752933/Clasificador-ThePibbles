@@ -1,7 +1,33 @@
-{% extends 'base.html' %}
-{% block contenido %}
+{%extends 'base.html'%}
+{%block contenido%}
 <section class="flex flex-col items-center p-10 gap-6 min-h-screen">
-    <img src="https://www.tadaima.com.mx/wp-content/uploads/2019/07/asunyan-1280x500.jpg" alt="que cosita ves" width="1000" class="rounded-lg shadow-md">
+    <img src="https://www.tadaima.com.mx/wp-content/uploads/2019/07/asunyan-1280x500.jpg"
+         alt="que cosita ves"
+         width="1000"
+         class="rounded-lg shadow-md">
+
+    <div class="w-full max-w-5xl grid grid-cols-3 gap-4">
+        <div class="bg-white shadow rounded-lg p-4 text-center">
+            <p class="text-gray-500 text-sm">Residuos clasificados</p>
+            <h2 class="text-2xl font-bold text-gray-800">
+                {{ estadistica.total_residuos }}
+            </h2>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-4 text-center">
+            <p class="text-gray-500 text-sm">Ingreso total</p>
+            <h2 class="text-2xl font-bold text-green-600">
+                Bs {{ estadistica.ingreso_total }}
+            </h2>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-4 text-center">
+            <p class="text-gray-500 text-sm">Reportes generados</p>
+            <h2 class="text-2xl font-bold text-gray-800">
+                {{ total_reportes }}
+            </h2>
+        </div>
+    </div>
 
     <div class="w-full max-w-5xl overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-500">
@@ -14,53 +40,125 @@
                     <th scope="col" class="px-6 py-3">Egreso</th>
                 </tr>
             </thead>
+
             <tbody id="tabla-cuerpo">
+                {% for registro in registros %}
                 <tr class="bg-white border-b hover:bg-gray-50">
-                    <td class="px-6 py-4"><input type="text" placeholder="Ej. Plástico" class="border p-1 rounded w-full text-gray-900 font-medium"></td>
-                    <td class="px-6 py-4"><input type="text" placeholder="Ej. Botella PET" class="border p-1 rounded w-full"></td>
-                    <td class="px-6 py-4"><input type="number" placeholder="0" class="border p-1 rounded w-full"></td>
-                    <td class="px-6 py-4"><input type="number" step="0.1" placeholder="Bs 0.00" class="border p-1 rounded w-full text-green-600 font-semibold"></td>
-                    <td class="px-6 py-4"><input type="number" step="0.1" placeholder="Bs 0.00" class="border p-1 rounded w-full text-red-600 font-semibold"></td>
+                    <td class="px-6 py-4 text-gray-900 font-medium">
+                        {{ registro.clasificacion }}
+                    </td>
+
+                    <td class="px-6 py-4">
+                        {{ registro.tipo }}
+                    </td>
+
+                    <td class="px-6 py-4">
+                        {{ registro.cantidad }}
+                    </td>
+
+                    <td class="px-6 py-4 text-green-600 font-semibold">
+                        Bs {{ registro.ingreso }}
+                    </td>
+
+                    <td class="px-6 py-4 text-red-600 font-semibold">
+                        Bs {{ registro.egreso }}
+                    </td>
                 </tr>
-                <tr class="bg-white border-b hover:bg-gray-50">
-                    <td class="px-6 py-4"><input type="text" placeholder="Ej. Papel" class="border p-1 rounded w-full text-gray-900 font-medium"></td>
-                    <td class="px-6 py-4"><input type="text" placeholder="Ej. Revistas" class="border p-1 rounded w-full"></td>
-                    <td class="px-6 py-4"><input type="number" placeholder="0" class="border p-1 rounded w-full"></td>
-                    <td class="px-6 py-4"><input type="number" step="0.1" placeholder="Bs 0.00" class="border p-1 rounded w-full text-green-600 font-semibold"></td>
-                    <td class="px-6 py-4"><input type="number" step="0.1" placeholder="Bs 0.00" class="border p-1 rounded w-full text-red-600 font-semibold"></td>
+                {% empty %}
+                <tr class="bg-white border-b">
+                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                        Todavía no hay residuos clasificados.
+                    </td>
                 </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
 
-    <button id="btn-agregar" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow transition duration-200">
-        + Agregar Fila
-    </button>
+    <form method="post" action="{% url 'generar_reporte' %}">
+        {% csrf_token %}
+        <button type="submit"
+                class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow transition duration-200">
+            Generar Reporte
+        </button>
+    </form>
 
     <div class="w-full max-w-5xl flex justify-between items-center mt-8">
         <a href="URL_DE_REDIRECCION_1">
-            <img src="https://static.wikia.nocookie.net/memes-pedia/images/d/df/Nada.png/revision/latest?cb=20201119214705&path-prefix=es" alt="Imagen Izquierda" width="450" class="rounded-lg shadow-lg hover:scale-105 transition-transform">
+            <img src="https://static.wikia.nocookie.net/memes-pedia/images/d/df/Nada.png/revision/latest?cb=20201119214705&path-prefix=es"
+                 alt="Imagen Izquierda"
+                 width="450"
+                 class="rounded-lg shadow-lg hover:scale-105 transition-transform">
         </a>
-        
+
         <a href="URL_DE_REDIRECCION_2">
-            <img src="https://i.imgflip.com/3cya6l.jpg" alt="Imagen Derecha" width="500" class="rounded-lg shadow-lg hover:scale-105 transition-transform">
+            <img src="https://i.imgflip.com/3cya6l.jpg"
+                 alt="Imagen Derecha"
+                 width="500"
+                 class="rounded-lg shadow-lg hover:scale-105 transition-transform">
         </a>
     </div>
+    {% if ultimo_reporte %}
+    <div id="reporte-generado-voz" class="hidden">
+        Reporte generado correctamente.
+        Total de residuos clasificados: {{ ultimo_reporte.total_residuos }}.
+        Ingreso total estimado: {{ ultimo_reporte.ingreso_total }} bolivianos.
+        Egreso total estimado: {{ ultimo_reporte.egreso_total }} bolivianos.
+    </div>
+{% endif %}
 </section>
-
 <script>
-    document.getElementById('btn-agregar').addEventListener('click', function() {
-        const tbody = document.getElementById('tabla-cuerpo');
-        const nuevaFila = document.createElement('tr');
-        nuevaFila.className = "bg-white border-b hover:bg-gray-50";
-        nuevaFila.innerHTML = `
-            <td class="px-6 py-4"><input type="text" placeholder="Clasificación" class="border p-1 rounded w-full text-gray-900 font-medium"></td>
-            <td class="px-6 py-4"><input type="text" placeholder="Objeto" class="border p-1 rounded w-full"></td>
-            <td class="px-6 py-4"><input type="number" placeholder="0" class="border p-1 rounded w-full"></td>
-            <td class="px-6 py-4"><input type="number" step="0.1" placeholder="Bs 0.00" class="border p-1 rounded w-full text-green-600 font-semibold"></td>
-            <td class="px-6 py-4"><input type="number" step="0.1" placeholder="Bs 0.00" class="border p-1 rounded w-full text-red-600 font-semibold"></td>
-        `;
-        tbody.appendChild(nuevaFila);
+    async function escuchaEstaActiva() {
+        try {
+            const respuesta = await fetch("{% url 'estado_voz' %}");
+
+            if (!respuesta.ok) {
+                return false;
+            }
+
+            const data = await respuesta.json();
+            return data.escuchando === true;
+
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function limpiarTexto(texto) {
+        return texto.replace(/\s+/g, " ").trim();
+    }
+
+    async function leerReporteGenerado() {
+        const parametros = new URLSearchParams(window.location.search);
+        const reporteGenerado = parametros.get("generado");
+
+        if (reporteGenerado !== "1") {
+            return;
+        }
+
+        const vozActiva = await escuchaEstaActiva();
+
+        if (!vozActiva) {
+            return;
+        }
+
+        const bloqueReporte = document.getElementById("reporte-generado-voz");
+
+        if (!bloqueReporte) {
+            return;
+        }
+
+        const mensaje = limpiarTexto(bloqueReporte.textContent);
+
+        if (typeof hablarMensaje === "function") {
+            await hablarMensaje(mensaje);
+        }
+    }
+
+    window.addEventListener("DOMContentLoaded", function () {
+        setTimeout(() => {
+            leerReporteGenerado();
+        }, 800);
     });
 </script>
-{% endblock %}
+{%endblock%}

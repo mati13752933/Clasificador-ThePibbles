@@ -106,6 +106,8 @@ def ejecutar_comando_camara(request):
             gesto = "desconocido"
     elif accion == "abrir_selector_imagen":
         gesto = "click"
+    elif accion == "capturar_clasificacion":
+        gesto = "capturar_clasificacion"
     elif accion == "mensaje":
         return JsonResponse({"activo": True, "hay_gesto": False})
     else:

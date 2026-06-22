@@ -39,9 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'appAdministracionUsuarios',
     'appClasificacionResiduos',
-    'appReportes',
     'usuarios',
     'appControlExterno',
+    "appReportes.apps.AppReportesConfig",
 ]
 
 MIDDLEWARE = [

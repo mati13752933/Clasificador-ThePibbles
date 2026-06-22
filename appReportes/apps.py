@@ -1,5 +1,9 @@
 from django.apps import AppConfig
 
 
-class AppreportesConfig(AppConfig):
-    name = 'appReportes'
+class AppReportesConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "appReportes"
+
+    def ready(self):
+        from . import observer

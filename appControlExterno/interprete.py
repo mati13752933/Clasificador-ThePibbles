@@ -131,6 +131,28 @@ def interpretar_comando(texto):
             "mensaje": "Se termino el control por voz."
         }
 
+    if any(palabra in texto_limpio for palabra in ["clasificar", "analizar", "procesar", "evaluar", "revisar", "identificar", "detectar"]) and any(palabra in texto_limpio for palabra in ["camara", "video", "cámara"]):
+        return {
+            "ok": True,
+            "accion": "clasificar_por_video",
+            "mensaje": "Clasificando con cámara."
+        }
+
+    if any(palabra in texto_limpio for palabra in ["abrir", "activar", "encender"]) and any(palabra in texto_limpio for palabra in ["camara", "video", "cámara"]):
+        return {
+            "ok": True,
+            "accion": "abrir_camara",
+            "ruta": "/clasificacion/?accion=abrir_camara",
+            "mensaje": "Abriendo cámara para clasificar."
+        }
+
+    if verbo == "clasificar":
+        return {
+            "ok": True,
+            "accion": "clasificar_por_video",
+            "mensaje": "Clasificando con cámara."
+        }
+
     if verbo is None:
         return {
             "ok": False,
@@ -170,7 +192,14 @@ def interpretar_comando(texto):
             "ruta": "/reportes/",
             "mensaje": "Abriendo reportes."
         }
-  
+    if verbo == "generar" and objeto == "reportes":
+        return {
+            "ok": True,
+            "accion": "redirigir",
+            "ruta": "/reportes/generar/",
+            "mensaje": "Generando reporte."
+        }
+
     if verbo == "ir" and objeto == "perfil":
         return {
             "ok": True,
