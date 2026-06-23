@@ -83,6 +83,17 @@
         </button>
     </form>
 
+    <!-- Script de Chart.js para cargar gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Contenedor del gráfico de torta (Pie Chart) centrado -->
+    <div id="contenedor-grafico" class="w-full max-w-md bg-white shadow-md rounded-lg p-6 my-6 flex flex-col items-center border border-gray-200">
+        <h3 class="text-lg font-bold text-gray-700 mb-4">Distribución de Ingresos por Residuo</h3>
+        <div style="width: 300px; height: 300px;">
+            <canvas id="graficoIngresos"></canvas>
+        </div>
+    </div>
+
     <div class="w-full max-w-5xl flex justify-between items-center mt-8">
         <a href="URL_DE_REDIRECCION_1">
             <img src="https://static.wikia.nocookie.net/memes-pedia/images/d/df/Nada.png/revision/latest?cb=20201119214705&path-prefix=es"
@@ -159,6 +170,72 @@
         setTimeout(() => {
             leerReporteGenerado();
         }, 800);
+
+        // Lógica para inicializar el gráfico de torta
+        const ingresosData = {};
+        {% for registro in registros %}
+            {% if registro.ingreso > 0 %}
+                var tipo = "{{ registro.tipo|escapejs }}";
+                var ingreso = parseFloat("{{ registro.ingreso }}");
+                if (ingresosData[tipo]) {
+                    ingresosData[tipo] += ingreso;
+                } else {
+                    ingresosData[tipo] = ingreso;
+                }
+            {% endif %}
+        {% endfor %}
+
+        const etiquetas = Object.keys(ingresosData);
+        const valores = Object.values(ingresosData).map(v => parseFloat(v.toFixed(2)));
+
+        if (etiquetas.length > 0) {
+            const ctx = document.getElementById('graficoIngresos').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: etiquetas,
+                    datasets: [{
+                        data: valores,
+                        backgroundColor: [
+                            '#4CAF50', // Verde
+                            '#2196F3', // Azul
+                            '#FFEB3B', // Amarillo
+                            '#FF5722', // Naranja/Rojo
+                            '#9C27B0', // Purpura
+                            '#E91E63', // Rosa
+                            '#00BCD4', // Cyan
+                            '#FFC107'  // Ámbar
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.label}: Bs ${context.raw.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            // Ocultamos el contenedor si no hay datos con valor de ingresos
+            document.getElementById('contenedor-grafico').style.display = 'none';
+        }
     });
 </script>
 {%endblock%}

@@ -11,7 +11,6 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from decimal import Decimal
 from .models import RegistroClasificacion
-from .valores_residuos import calcular_valores_residuo
 
 
 def _parsear_candidato(texto):
@@ -151,15 +150,35 @@ def guardar_resultado(request, respuesta):
 
     clasificacion = respuesta["clasificacion"]
     tipo = respuesta["tipo"]
-    utilidad = respuesta["utilidad"]
+    
+    # Limpiamos utilidad para asegurarnos de que sea un número (float)
+    try:
+        utilidad_str = str(respuesta.get("utilidad", "0")).replace("%", "").strip()
+        utilidad = float(utilidad_str)
+    except Exception:
+        utilidad = 0.0
 
     cantidad = 1
 
-    ingreso, peso, precio = calcular_valores_residuo(
-        tipo=tipo,
-        clasificacion=clasificacion,
-        cantidad=cantidad
-    )
+    # Obtenemos los valores estimados directamente de la IA con valores por defecto
+    try:
+        peso = Decimal(str(respuesta.get("peso_estimado_kg", "0.00")))
+    except Exception:
+        peso = Decimal("0.00")
+
+    try:
+        precio = Decimal(str(respuesta.get("precio_estimado_bs_kg", "0.00")))
+    except Exception:
+        precio = Decimal("0.00")
+
+    # Calculamos el ingreso
+    if clasificacion in ["Reciclable", "Aprovechable"]:
+        ingreso = peso * precio * Decimal(cantidad)
+    else:
+        ingreso = Decimal("0.00")
+
+    # Calculamos el egreso como el 15% del ingreso
+    egreso = ingreso * Decimal("0.15")
 
     RegistroClasificacion.objects.create(
         perfil=perfil,
@@ -169,6 +188,6 @@ def guardar_resultado(request, respuesta):
         utilidad=utilidad,
         peso_unitario_kg=peso,    
         ingreso=ingreso,
-        egreso=Decimal('0.00'),
+        egreso=egreso,
     )
     return respuesta
