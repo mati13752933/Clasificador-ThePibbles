@@ -179,6 +179,8 @@ class ServicioCamara:
                             resultado = None  
                         else:
                             resultado = self._procesar_gesto_navegacion(gesto)
+                        if gesto == "capturar_clasificacion":
+                            cv2.imwrite("captura_gesto.jpg", frame)
 
                         if resultado:
                             if resultado.get("accion") == "detener_camara":

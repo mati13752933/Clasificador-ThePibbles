@@ -60,7 +60,7 @@ ETIQUETAS_PANTALLA = {
     "clasificacion":        "2 - Clasificacion",
     "reportes":             "3 - Reportes",
     "perfil":               "4 - Perfil",
-    "capturar_clasificacion":"5 - Capturar clasificación",
+    "capturar_clasificacion":"5 - Clasficar Residuo",
     "archivo_subir":        "1 - Subir",
     "archivo_bajar":        "2 - Bajar",
     "archivo_cerrar":       "3 - Cerrar selector",

@@ -404,20 +404,14 @@
 
             console.log("Gesto recibido:", data.gesto);
 
-            if (data.gesto === "clasificacion") {
-                if (!window.location.pathname.includes("/clasificacion/")) {
-                    window.location.href = "/clasificacion/";
-                }
+            if (data.gesto === "inicio") {
+                window.location.href = "/";
                 return;
             }
 
-            if (data.gesto === "capturar_clasificacion") {
-                if (window.location.pathname.includes("/clasificacion/")) {
-                    if (typeof window.ejecutarGestoClasificacion === "function") {
-                        window.ejecutarGestoClasificacion("capturar");
-                    } else if (typeof window.capturarYClasificar === "function") {
-                        window.capturarYClasificar();
-                    }
+            if (data.gesto === "clasificacion") {
+                if (!window.location.pathname.includes("/clasificacion/")) {
+                    window.location.href = "/clasificacion/";
                 }
                 return;
             }
@@ -432,26 +426,24 @@
                 return;
             }
 
+            if (data.gesto === "capturar_clasificacion") {
+                if (window.location.pathname.includes("/clasificacion/")) {
+                    if (typeof window.ejecutarGestoClasificacion === "function") {
+                        window.ejecutarGestoClasificacion("clasificacion");
+                    }
+                } else {
+                    window.location.href = "/clasificacion/?accion=subir_imagen";
+                }
+                return;
+            }
+
             if (data.gesto === "detener") {
                 await fetch("{% url 'detener_camara' %}");
                 camaraActiva = false;
-
                 const checkbox = document.getElementById("checkbox-camara");
-
                 if (checkbox) {
                     checkbox.checked = false;
                 }
-
-                return;
-            }
-
-            if (data.gesto === "inicio") {
-                window.location.href = "/";
-                return;
-            }
-
-            if (data.gesto === "click") {
-                window.location.href = "/clasificacion/?accion=subir_imagen";
                 return;
             }
 
