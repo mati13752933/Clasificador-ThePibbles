@@ -158,6 +158,8 @@ def analizarImagen(imagen):
             img = cv2.imread(imagen)
     else:# Si ya es la matriz de pixeles de Django
             img = imagen
+    if img is None or not hasattr(img, 'size') or img.size == 0:
+        return []
     gris = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)#lo vuelve emo (negro, gris y blacno)
     difuminado = cv2.GaussianBlur(gris, (5, 5), 0)#elimina ruido pequeño de pixeles
     bordes = cv2.Canny(difuminado, 30, 150)#saca todos los bordes
@@ -197,15 +199,33 @@ def analizarImagen(imagen):
 
 
 def mainPrimeCompletoInsanoKaiokenSsj5(imagen, archivo_bytes):
+    # Si la imagen llegó nula (por ejemplo, puntero al final en Django), intentamos decodificarla robustamente
+    if imagen is None:
+        try:
+            archivo_bytes.seek(0)
+            bytes_data = archivo_bytes.read()
+            archivo_bytes.seek(0)
+            np_arr = np.frombuffer(bytes_data, np.uint8)
+            imagen = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+        except Exception:
+            pass
+
     listita = analizarImagen(imagen)
     listita = comparar(listita)
+    if not listita:
+        listita = [{
+            "similtudReferencia": 0.0,
+            "tipoClasificado": "objeto desconocido"
+        }]
+    num_detecciones = len(listita)
     objetoPrincipal=listita[0]
     porcentaje=objetoPrincipal["similtudReferencia"]
     tipoObjeto=objetoPrincipal["tipoClasificado"]
-    promptcito={"accion": "Clasificar", "tema": "Residuos", "parametros": {"tipo": "texto", "contexto": f"Eres un Clasificador de residuos. El algoritmo de visión artificial determinó que el objeto principal analizado geométricamente tiene un {porcentaje}% de similitud matemática con una '{tipoObjeto}'. Utiliza este dato junto con la imagen para clasificar con precisión, ademas de darme el % de utilidad que le calculas, asegurate de tomar en cuenta el estado en el que se encuentra el objeto al momento de clasificar, no solo por el material", "restricciones": "Clasifica el tipo de residuo que es, tiene que ser uno de estos: [Reciclable, No Reciclable, Aprovechable, Infeccioso]. Identifica el tipo de residuo que es, entre estas opciones: [plastico, papel, lata, madera, vidrio, cascara, carton, etc]. Además, estima un peso aproximado para este objeto en kilogramos (peso_estimado_kg) y un precio de mercado razonable por kilogramo en Bolivianos (precio_estimado_bs_kg). Responde en un JSON con datos clasificacion, tipo, utilidad, peso_estimado_kg, precio_estimado_bs_kg"}}
+    promptcito={"accion": "Clasificar", "tema": "Residuos", "parametros": {"tipo": "texto", "contexto": f"Eres un Clasificador de residuos. El algoritmo de visión artificial detectó {num_detecciones} objetos en la imagen, y determinó que el objeto principal analizado geométricamente tiene un {porcentaje}% de similitud matemática con una '{tipoObjeto}'. Utiliza estos datos junto con la imagen para clasificar con precisión, contar la cantidad exacta de estos objetos y estimar su peso y precio.", "restricciones": "Clasifica el tipo de residuo que es, tiene que ser uno de estos: [Reciclable, No Reciclable, Aprovechable, Infeccioso]. Identifica el tipo de residuo que es, entre estas opciones: [plastico, papel, lata, madera, vidrio, cascara, carton, etc]. Además, estima un peso aproximado para un objeto individual en kilogramos (peso_estimado_kg), un precio de mercado razonable por kilogramo en Bolivianos (precio_estimado_bs_kg), y cuenta la cantidad total de estos objetos en la imagen (cantidad). Responde en un JSON con datos clasificacion, tipo, utilidad, peso_estimado_kg, precio_estimado_bs_kg, cantidad"}}
     constructorcito=PromptBuilder()
     promptFinal =constructorcito.construir(promptcito)
     ia = Ia()
+    archivo_bytes.seek(0)
     res = ia.generarConImagen(archivo_bytes.read(), archivo_bytes.content_type, promptFinal)
     return res
 

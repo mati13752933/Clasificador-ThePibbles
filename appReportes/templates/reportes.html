@@ -34,7 +34,7 @@
             <thead class="text-xs text-gray-700 uppercase bg-gray-100">
                 <tr>
                     <th scope="col" class="px-6 py-3">Clasificación</th>
-                    <th scope="col" class="px-6 py-3">Objeto</th>
+                    <th scope="col" class="px-6 py-3">Material</th>
                     <th scope="col" class="px-6 py-3">Cantidad</th>
                     <th scope="col" class="px-6 py-3">Ingreso</th>
                     <th scope="col" class="px-6 py-3">Egreso</th>
@@ -116,9 +116,77 @@
         Ingreso total estimado: {{ ultimo_reporte.ingreso_total }} bolivianos.
         Egreso total estimado: {{ ultimo_reporte.egreso_total }} bolivianos.
     </div>
-{% endif %}
+    {% endif %}
+
+    <!-- Modal de Reporte Detallado -->
+    <div id="modal-reporte" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 hidden">
+        <div class="bg-white rounded-2xl shadow-xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col">
+            <div class="flex items-center justify-between border-b pb-3 mb-4">
+                <h3 class="text-xl font-bold text-gray-800">Reporte de Clasificaciones</h3>
+                <button onclick="cerrarModalReporte()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="overflow-y-auto flex-1 text-sm text-gray-700 space-y-3 pr-2 text-left" id="reporte-texto-contenedor">
+                {% for registro in registros %}
+                    <p class="border-b border-gray-100 pb-2">
+                        En la fecha <strong>{{ registro.fecha|date:"d/m/Y H:i:s" }}</strong> se registró <strong>{{ registro.cantidad }}</strong> objeto(s) <strong>{{ registro.clasificacion }}</strong> de <strong>{{ registro.tipo }}</strong> que ingresaron <strong>Bs {{ registro.ingreso }}</strong>, y egresaron <strong>Bs {{ registro.egreso }}</strong>.
+                    </p>
+                {% endfor %}
+            </div>
+
+            <div class="border-t pt-4 mt-4 flex justify-between items-center text-sm text-gray-800">
+                <div class="flex gap-4">
+                    <div><strong>Ingreso Total:</strong> <span class="text-green-600 font-semibold">Bs {{ estadistica.ingreso_total }}</span></div>
+                    <div><strong>Egreso Total:</strong> <span class="text-red-600 font-semibold">Bs {{ estadistica.egreso_total }}</span></div>
+                </div>
+                <div class="text-base font-bold text-gray-900">
+                    Ganancia: <span id="ganancia-total"></span>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button onclick="cerrarModalReporte()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition duration-200">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
 </section>
 <script>
+    function calcularGanancia() {
+        const ingreso = parseFloat("{{ estadistica.ingreso_total }}") || 0;
+        const egreso = parseFloat("{{ estadistica.egreso_total }}") || 0;
+        const ganancia = ingreso - egreso;
+        const elem = document.getElementById("ganancia-total");
+        if (elem) {
+            elem.textContent = `Bs ${ganancia.toFixed(2)}`;
+            if (ganancia >= 0) {
+                elem.className = "text-green-600 font-bold";
+            } else {
+                elem.className = "text-red-600 font-bold";
+            }
+        }
+    }
+
+    function abrirModalReporte() {
+        const modal = document.getElementById("modal-reporte");
+        if (modal) {
+            modal.classList.remove("hidden");
+            calcularGanancia();
+        }
+    }
+
+    function cerrarModalReporte() {
+        const modal = document.getElementById("modal-reporte");
+        if (modal) {
+            modal.classList.add("hidden");
+        }
+    }
+
     async function escuchaEstaActiva() {
         try {
             const respuesta = await fetch("{% url 'estado_voz' %}");
@@ -170,6 +238,11 @@
         setTimeout(() => {
             leerReporteGenerado();
         }, 800);
+
+        const parametros = new URLSearchParams(window.location.search);
+        if (parametros.get("generado") === "1") {
+            abrirModalReporte();
+        }
 
         // Lógica para inicializar el gráfico de torta
         const ingresosData = {};
