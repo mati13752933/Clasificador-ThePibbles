@@ -2,16 +2,78 @@ import ast
 import base64
 import json
 import re
-import cv2
 import numpy as np
 from django.shortcuts import render, redirect
 from .pipeline import mainPrimeCompletoInsanoKaiokenSsj5
 from django.contrib.auth.decorators import login_required 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from decimal import Decimal
 from .models import RegistroClasificacion
 from .valores_residuos import calcular_valores_residuo
+
+
+@login_required
+def clasificacion(request):
+    if request.method == "POST":
+        imagen = request.FILES.get("imagen")
+        if imagen:
+            imagen_bytes = imagen.read()
+            imagen.seek(0)
+            np_arr = np.frombuffer(imagen_bytes, np.uint8)
+            img_opencv = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+            respuesta_ia = mainPrimeCompletoInsanoKaiokenSsj5(img_opencv, imagen)
+            print("Respuesta IA original:", repr(respuesta_ia))
+
+            # La IA debería responder con JSON real; si llega como texto o con envoltorios,
+            # aquí lo normalizamos para que el template siempre reciba un diccionario limpio.
+            datos_ia = _normalizar_datos_json(respuesta_ia)
+            if not datos_ia:
+                datos_ia = {
+                    "clasificacion": str(respuesta_ia).strip()
+                }
+
+            print("Respuesta IA original:", repr(respuesta_ia))
+            print("Datos de IA normalizados:", datos_ia)
+            imagen_base64 = base64.b64encode(imagen_bytes).decode('utf-8')
+            imagen_url = f"data:{imagen.content_type};base64,{imagen_base64}"
+            resultado = {"ok": True, **datos_ia}
+            resultado = guardar_resultado(request, resultado)
+            request.session["imagen_url"] = imagen_url
+            request.session["resultado"] = resultado
+            return redirect("resultado")
+    return render(request, 'clasificacion.html')
+
+@login_required
+def resultado(request):
+    imagen_url = request.session.get("imagen_url")
+    resultado = request.session.get("resultado")
+    return render(request, 'clasificado.html', {"imagen_url": imagen_url, "resultado": resultado})
+
+def guardar_resultado(request, respuesta):
+    perfil = request.user.perfil
+
+    clasificacion = respuesta["clasificacion"]
+    tipo = respuesta["tipo"]
+    utilidad = respuesta["utilidad"]
+
+    cantidad = 1
+
+    ingreso, peso, precio = calcular_valores_residuo(
+        tipo=tipo,
+        clasificacion=clasificacion,
+        cantidad=cantidad
+    )
+
+    RegistroClasificacion.objects.create(
+        perfil=perfil,
+        tipo=tipo,
+        clasificacion=clasificacion,
+        cantidad=cantidad,
+        utilidad=utilidad,
+        peso_unitario_kg=peso,    
+        ingreso=ingreso,
+        egreso=Decimal('0.00'),
+    )
+    return respuesta
 
 
 def _parsear_candidato(texto):
@@ -107,68 +169,3 @@ def _normalizar_datos_json(respuesta):
         return _parsear_candidato(respuesta)
 
     return {}
-
-
-@login_required
-def clasificacion(request):
-    if request.method == "POST":
-        imagen = request.FILES.get("imagen")
-        if imagen:
-            imagen_bytes = imagen.read()
-            imagen.seek(0)
-            np_arr = np.frombuffer(imagen_bytes, np.uint8)
-            img_opencv = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-            respuesta_ia = mainPrimeCompletoInsanoKaiokenSsj5(img_opencv, imagen)
-            print("Respuesta IA original:", repr(respuesta_ia))
-
-            # La IA debería responder con JSON real; si llega como texto o con envoltorios,
-            # aquí lo normalizamos para que el template siempre reciba un diccionario limpio.
-            datos_ia = _normalizar_datos_json(respuesta_ia)
-            if not datos_ia:
-                datos_ia = {
-                    "clasificacion": str(respuesta_ia).strip()
-                }
-
-            print("Respuesta IA original:", repr(respuesta_ia))
-            print("Datos de IA normalizados:", datos_ia)
-            imagen_base64 = base64.b64encode(imagen_bytes).decode('utf-8')
-            imagen_url = f"data:{imagen.content_type};base64,{imagen_base64}"
-            resultado = {"ok": True, **datos_ia}
-            resultado = guardar_resultado(request, resultado)
-            request.session["imagen_url"] = imagen_url
-            request.session["resultado"] = resultado
-            return redirect("resultado")
-    return render(request, 'clasificacion.html')
-
-@login_required
-def resultado(request):
-    imagen_url = request.session.get("imagen_url")
-    resultado = request.session.get("resultado")
-    return render(request, 'clasificado.html', {"imagen_url": imagen_url, "resultado": resultado})
-
-def guardar_resultado(request, respuesta):
-    perfil = request.user.perfil
-
-    clasificacion = respuesta["clasificacion"]
-    tipo = respuesta["tipo"]
-    utilidad = respuesta["utilidad"]
-
-    cantidad = 1
-
-    ingreso, peso, precio = calcular_valores_residuo(
-        tipo=tipo,
-        clasificacion=clasificacion,
-        cantidad=cantidad
-    )
-
-    RegistroClasificacion.objects.create(
-        perfil=perfil,
-        tipo=tipo,
-        clasificacion=clasificacion,
-        cantidad=cantidad,
-        utilidad=utilidad,
-        peso_unitario_kg=peso,    
-        ingreso=ingreso,
-        egreso=Decimal('0.00'),
-    )
-    return respuesta

@@ -9,11 +9,7 @@ from .models import EstadisticaPerfil
 
 
 class ClasificacionObserver:
-    """
-    Observer que actualiza el perfil y las estadísticas
-    cuando se crea un nuevo RegistroClasificacion.
-    """
-
+    
     def update(self, registro):
         perfil = registro.perfil
 
@@ -40,20 +36,12 @@ class ClasificacionObserver:
         elif registro.clasificacion == "Infeccioso":
             estadistica.infecciosos += registro.cantidad
 
-        elif registro.clasificacion == "Electrónico":
-            estadistica.electronicos += registro.cantidad
 
         estadistica.save()
 
 
 @receiver(pre_save, sender=RegistroClasificacion)
 def ajustar_valores_registro(sender, instance, **kwargs):
-    """
-    Intercepta la creación de RegistroClasificacion.
-    Si se originó en guardar_resultado(), extrae la respuesta de la IA (respuesta)
-    para aplicar las estimaciones personalizadas (peso_estimado_kg, precio_estimado_bs_kg)
-    y calcular el egreso como 15% del ingreso.
-    """
     frame = sys._getframe()
     respuesta = None
     while frame:
@@ -86,7 +74,6 @@ def ajustar_valores_registro(sender, instance, **kwargs):
         except Exception:
             precio = Decimal("0.00")
 
-        # Calculamos ingreso y egreso según clasificación
         clasif = instance.clasificacion
         if clasif in ["Infeccioso", "No Reciclable"]:
             ingreso = Decimal("0.00")
@@ -98,7 +85,6 @@ def ajustar_valores_registro(sender, instance, **kwargs):
             ingreso = Decimal("0.00")
             egreso = Decimal("0.00")
 
-        # Asignamos al registro antes de que se guarde en la BD
         instance.cantidad = cantidad
         instance.utilidad = utilidad
         instance.peso_unitario_kg = peso

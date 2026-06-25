@@ -195,7 +195,7 @@ def posicionar_mouse_primer_archivo():
         y = ventana.top + 180
 
         pyautogui.moveTo(x, y, duration=0.2)
-        time.sleep(1)
+        time.sleep(0.7)
         pyautogui.click()
 
 
