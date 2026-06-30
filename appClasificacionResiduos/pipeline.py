@@ -7,11 +7,9 @@ import io
 import pyautogui
 pyautogui.FAILSAFE = False
 
-from Libreria.thepibbles.Gramatica.lexer import Tokenizador
-from Libreria.thepibbles.Gramatica.parser import Parser
 from Libreria.thepibbles.IA.promptBuilder import PromptBuilder
 from Libreria.thepibbles.IA.ia import Ia
-from Libreria.thepibbles.Gramatica.control import Extractor
+
 
 #Puse comentarios para que no sea todo un despute
 
@@ -229,83 +227,5 @@ def mainPrimeCompletoInsanoKaiokenSsj5(imagen, archivo_bytes):
     res = ia.generarConImagen(archivo_bytes.read(), archivo_bytes.content_type, promptFinal)
     return res
 
-def iniciarCamara():
-    baseDir=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    carpetaImagenes=os.path.join(baseDir,"imagenes")
-    archivosGestos={
-        "derecha":"derecha.jpg",
-        "izquierda":"izquierda.jpg", 
-        "arriba":"arriba.jpg",
-        "abajo":"abajo.jpg",
-        "palma":"circulo.jpg"
-    }
-    datos_plantillas=[]
-    for tipoGesto,nombreArchivo in archivosGestos.items():
-        ruta=os.path.join(carpetaImagenes,nombreArchivo)
-        if os.path.exists(ruta):
-            analisis=analizarImagen(ruta)
-            if analisis:
-                infoGesto=analisis[0]
-                infoGesto["tipoReferencia"]=tipoGesto
-                datos_plantillas.append(infoGesto)
-    cap=cv2.VideoCapture(0)
-    if not cap.isOpened():
-        return
-    while cap.isOpened():
-        ret,frame=cap.read()
-        if not ret:
-            break
-        frame=cv2.flip(frame,1)
-        resultadosCamara=analizarImagen(frame)
-        if resultadosCamara:
-            resultadoGesto=procesarGestoCamara(resultadosCamara,datos_plantillas)
-            if resultadoGesto:
-                gesto,porcentaje=resultadoGesto
-                infoTexto=f"Gesto: {gesto.upper()} ({porcentaje}%)"
-                cv2.putText(frame,infoTexto,(30,50),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
-        cv2.imshow("Feed de la Camara - Proyecto The Pibbles",frame)
-        if cv2.waitKey(1) & 0xFF == ord('s'):
-            break
-    cap.release()
-    cv2.destroyAllWindows()
 
-def procesarGestoCamara(resultados_camara,datos_plantillas):
-    if not resultados_camara or not datos_plantillas:
-        return None
-    contorno_camara=resultados_camara[0]["puntosContorno"]
-    tono_camara=resultados_camara[0]["tonoPromedio"]
-    menor_diferencia=float("inf")
-    gestoGanador="ninguno"
-    for ref in datos_plantillas:
-        contorno_referencia=ref["puntosContorno"]
-        tono_referencia=ref["tonoPromedio"]
-        diferencia_tono=abs(tono_camara-tono_referencia)
-        if diferencia_tono<=6:
-            diferencia_silueta=cv2.matchShapes(contorno_camara,contorno_referencia,cv2.CONTOURS_MATCH_I1,0)
-            penalizacion_color=diferencia_tono*0.05
-            diferencia_total=diferencia_silueta+penalizacion_color
-            if diferencia_total<menor_diferencia:
-                menor_diferencia=diferencia_total
-                gestoGanador=ref["tipoReferencia"]
-    if menor_diferencia==float("inf"):
-        return None
-    similitud=max(0.0,round(100.0*(1.0-menor_diferencia),2))
-    if similitud>=10:
-        if gestoGanador=="derecha":
-            pyautogui.move(15,0)
-            print("derecha ",similitud)
-        elif gestoGanador=="izquierda":
-            pyautogui.move(-15,0)
-            print("izquierda ",similitud)
-        elif gestoGanador=="arriba":
-            pyautogui.move(0,-15)
-            print("arriba ",similitud)
-        elif gestoGanador=="abajo":
-            pyautogui.move(0,15)
-            print("abajo ",similitud)
-        elif gestoGanador=="palma":
-            pyautogui.click()
-            print("click",similitud)
-            pyautogui.sleep(0.3) 
-        return gestoGanador,similitud
-    return None
+

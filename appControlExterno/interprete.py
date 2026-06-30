@@ -14,10 +14,7 @@ VERBOS = {
     "cargar": [
         "subir", "cargar", "adjuntar", "seleccionar", "elegir", "elige", "carga", "adjunta", "elegir"
     ],
-    "ayuda": [
-        "ayuda", "ayudame", "ayúdame", "instrucciones", "explica"
-    ],
-
+    
     "detener" : [
         "detener", "para", "parar", "detente", "alto", "stop"
     ],
@@ -28,8 +25,11 @@ VERBOS = {
 
     "cerrar": [
         "cerrar", "close", "terminar", "acabar", "cierra", "termina", "terminando", "acaba", "sal", "salir"
-    ]
+    ],
 
+    "generar" : [
+        "hacer", "generar", "crear"
+    ]
 }
 
 
@@ -117,12 +117,6 @@ def interpretar_comando(texto):
     objeto = buscar_grupo(texto_limpio, OBJETOS)
 
     print("ANTES DE IF CONTROL:", verbo, objeto)
-    if verbo == "ayuda":
-        return {
-            "ok": True,
-            "accion": "mensaje",
-            "mensaje": "Puedes decir: abrir clasificación, ir a reportes, abrir administración, ir a perfil o volver al inicio."
-        }
     
     if verbo == "detener" :
         return {
@@ -196,7 +190,7 @@ def interpretar_comando(texto):
         return {
             "ok": True,
             "accion": "redirigir",
-            "ruta": "/reportes/generar/",
+            "ruta": "/reportes/?generado=1",
             "mensaje": "Generando reporte."
         }
 
@@ -207,7 +201,7 @@ def interpretar_comando(texto):
             "ruta": "/perfil/",
             "mensaje": "Abriendo perfil."
         }
-    
+   
     if verbo == "editar" and objeto == "perfil":
         return {
             "ok": True,

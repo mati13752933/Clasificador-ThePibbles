@@ -4,7 +4,6 @@ from . import views
 urlpatterns = [
     path('iniciar_voz/', views.iniciar_voz, name='iniciar_voz'),
     path('detener_voz/', views.detener_voz, name='detener_voz'),
-    path('ejecutar_comando_voz/', views.ejecutar_comando_voz, name='ejecutar_comando_voz'),
     path("iniciar_camara/", views.iniciar_camara, name="iniciar_camara"),
     path("detener_camara/", views.detener_camara, name="detener_camara"),
     path("ejecutar_comando_voz/", views.ejecutar_comando_voz, name="ejecutar_comando_voz"),

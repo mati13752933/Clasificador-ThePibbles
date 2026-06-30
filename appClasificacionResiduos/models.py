@@ -1,7 +1,6 @@
 # appClasificacionResiduos/models.py
 
 from django.db import models
-from decimal import Decimal
 from usuarios.models import Perfil
 
 class RegistroClasificacion(models.Model):

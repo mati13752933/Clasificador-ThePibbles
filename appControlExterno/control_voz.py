@@ -116,7 +116,7 @@ class ServicioVoz:
         if not resultado.get("ok"):
             return 9
 
-        intencion = resultado.get("intencion")
+        intencion = resultado.get("accion")
 
         prioridades = {
             "abrir_selector_imagen": 3,
@@ -125,8 +125,9 @@ class ServicioVoz:
             "ir_perfil": 2,
             "ir_admin": 2,
             "ir_inicio": 2,
-            "detener": 4,
+            "detener": 1,
             "mensaje": 1,
+            "generar_reporte": 3,
         }
 
         return prioridades.get(intencion, 8)
